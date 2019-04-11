@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine-slim AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
 WORKDIR /src
 COPY ["pumpk1n_backend/pumpk1n_backend.csproj", "pumpk1n_backend/"]
 RUN dotnet restore "pumpk1n_backend/pumpk1n_backend.csproj"
