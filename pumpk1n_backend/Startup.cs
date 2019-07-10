@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -70,10 +71,18 @@ namespace pumpk1n_backend
             });
             
             // Add DatabaseContext with DB connection string
-            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-
-            if (String.IsNullOrEmpty(connectionString))
+            var dbHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+            var dbPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+            var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+            var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+            String connectionString;
+            
+            if (String.IsNullOrEmpty(dbHost) || String.IsNullOrEmpty(dbPort) || String.IsNullOrEmpty(dbUser) 
+                || String.IsNullOrEmpty(dbPassword) || String.IsNullOrEmpty(dbName))
                 connectionString = _configuration.GetConnectionString("Pumpk1nDatabase");
+            else
+                connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};UseSSLStream=true;TrustServerCertificate=true";
 
             services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
             
