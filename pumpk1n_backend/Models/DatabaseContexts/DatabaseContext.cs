@@ -9,7 +9,6 @@ namespace pumpk1n_backend.Models.DatabaseContexts
         public DatabaseContext(DbContextOptions options) : base(options) { }
         
         public DbSet<User> Users { get; set; }
-        public DbSet<InternalUser> InternalUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -88,7 +88,6 @@ namespace pumpk1n_backend
             
             // Configuring D-I for Services
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IInternalAccountService, InternalAccountService>();
             
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();

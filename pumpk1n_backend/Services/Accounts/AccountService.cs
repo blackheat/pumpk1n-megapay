@@ -74,9 +74,6 @@ namespace pumpk1n_backend.Services.Accounts
                 var hashedPassword = StringUtilities.HashPassword(model.Password, user.Nonce);
                 if (!hashedPassword.Equals(user.HashedPassword))
                     throw new InvalidCredentialsException();
-                
-                if (user.ActivatedDate == null)
-                    throw new UserNotActivatedException();
 
                 var token = _accountHelper.JwtGenerator(user.Id, 0, UserType.NormalUser);
                 var userTokenModel = new UserBearerTokenModel
