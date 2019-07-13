@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.Common;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -76,10 +75,10 @@ namespace pumpk1n_backend
             var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
             var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
             var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
-            String connectionString;
+            string connectionString;
             
-            if (String.IsNullOrEmpty(dbHost) || String.IsNullOrEmpty(dbPort) || String.IsNullOrEmpty(dbUser) 
-                || String.IsNullOrEmpty(dbPassword) || String.IsNullOrEmpty(dbName))
+            if (string.IsNullOrEmpty(dbHost) || string.IsNullOrEmpty(dbPort) || string.IsNullOrEmpty(dbUser) 
+                || string.IsNullOrEmpty(dbPassword) || string.IsNullOrEmpty(dbName))
                 connectionString = _configuration.GetConnectionString("Pumpk1nDatabase");
             else
                 connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};UseSSLStream=true;TrustServerCertificate=true";

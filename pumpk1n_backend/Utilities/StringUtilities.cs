@@ -8,7 +8,7 @@ namespace pumpk1n_backend.Utilities
 {
     public static class StringUtilities
     {
-        public static String Sha512Hash(String input)
+        public static string Sha512Hash(string input)
         {
             SHA512 sha512 = new SHA512Managed();
             var hashedResult = sha512.ComputeHash(Encoding.UTF8.GetBytes(input));
@@ -16,24 +16,24 @@ namespace pumpk1n_backend.Utilities
             return result;
         }
         
-        public static String RemoveMark(string input)
+        public static string RemoveMark(string input)
         {
             var regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
             var temp = input.Normalize(NormalizationForm.FormD);
             return regex.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
         }
 
-        public static Int32 GenerateRandomNumber(Int32 start = 100000000, Int32 end = 999999999)
+        public static int GenerateRandomNumber(int start = 100000000, int end = 999999999)
         {
             var random = new Random();
             var randomNumber = random.Next(start, end);
             return randomNumber;
         }
         
-        public static String GenerateRandomString(int cryptoByteLength=64)
+        public static string GenerateRandomString(int cryptoByteLength=64)
         {
             var rngCryptoServiceProvider = new RNGCryptoServiceProvider();
-            var randomBytes = new Byte[cryptoByteLength];
+            var randomBytes = new byte[cryptoByteLength];
             rngCryptoServiceProvider.GetBytes(randomBytes);
             var randomGuid = new Guid();
             var currentDateTime = new DateTime().ToString(CultureInfo.InvariantCulture);
@@ -42,7 +42,7 @@ namespace pumpk1n_backend.Utilities
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(combinedString));
         }
 
-        public static String HashPassword(String password, String nonce)
+        public static string HashPassword(string password, string nonce)
         {
             var data = $"{password}+{nonce}";
             return Sha512Hash(data);

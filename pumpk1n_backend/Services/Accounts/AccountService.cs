@@ -94,7 +94,7 @@ namespace pumpk1n_backend.Services.Accounts
 
         #region Account Details
 
-        public async Task<UserInformationModel> GetUserDetails(Int64 userId)
+        public async Task<UserInformationModel> GetUserDetails(long userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             var userInformationModel = _mapper.Map<User, UserInformationModel>(user);
