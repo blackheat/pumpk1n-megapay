@@ -40,8 +40,8 @@ namespace pumpk1n_backend.Controllers.Accounts
         }
 
         [HttpGet]
+        [Authorize]
         [Route("info")]
-        [Authorize(Roles = "NormalUser")]
         public async Task<IActionResult> GetCurrentUserDetails()
         {
             var userId = Int64.Parse(User.Claims.First().Subject.Name);

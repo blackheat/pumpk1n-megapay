@@ -26,7 +26,6 @@ namespace pumpk1n_backend.Helpers.Accounts
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            Console.WriteLine("Key : " + _jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]

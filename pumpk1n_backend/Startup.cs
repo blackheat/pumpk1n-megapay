@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -64,6 +65,14 @@ namespace pumpk1n_backend
                     Name = "Authorization",
                     In = "header",
                     Type = "apiKey"
+                });
+                
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {
+                        "Bearer",
+                        new string[] { }
+                    }
                 });
                 
                 c.DescribeAllEnumsAsStrings();
