@@ -9,11 +9,11 @@ using pumpk1n_backend.Models.TransferModels.Accounts;
 using pumpk1n_backend.Responders;
 using pumpk1n_backend.Services.Accounts;
 
-namespace pumpk1n_backend.Controllers.Accounts
+namespace pumpk1n_backend.Controllers
 {
     [ApiController]
     [HandleException]
-    [Route("accounts")]
+    [Route("account")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;

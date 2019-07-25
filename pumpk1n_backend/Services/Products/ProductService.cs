@@ -1,8 +1,11 @@
 using System;
-using System.Data.Entity;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Exceptions.Products;
+using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Products;
 using pumpk1n_backend.Models.ReturnModels.Products;
@@ -10,7 +13,7 @@ using pumpk1n_backend.Models.TransferModels.Products;
 
 namespace pumpk1n_backend.Services.Products
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
@@ -43,7 +46,7 @@ namespace pumpk1n_backend.Services.Products
             }
         }
 
-        public async Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, Int64 productId)
+        public async Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, long productId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -70,7 +73,7 @@ namespace pumpk1n_backend.Services.Products
             }
         }
 
-        public async Task DeleteProduct(Int64 productId)
+        public async Task DeleteProduct(long productId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -93,7 +96,7 @@ namespace pumpk1n_backend.Services.Products
             }
         }
 
-        public async Task<ProductReturnModel> GetProduct(Int64 productId)
+        public async Task<ProductReturnModel> GetProduct(long productId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -116,6 +119,20 @@ namespace pumpk1n_backend.Services.Products
                     throw;
                 }
             }
+        }
+
+        public async Task<CustomList<ProductReturnModel>> GetProducts(int startAt, int count, string name = "")
+        {
+            var products = await _context.Products
+                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).Skip(startAt)
+                .Take(count).ToListAsync();
+            var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
+            productReturnModels.StartAt = startAt;
+            productReturnModels.EndAt = startAt + products.Count;
+            productReturnModels.Total = products.Count;
+            productReturnModels.IsListPartial = true;
+
+            return productReturnModels;
         }
     }
 }
