@@ -91,7 +91,7 @@ namespace pumpk1n_backend
                 || string.IsNullOrEmpty(dbPassword) || string.IsNullOrEmpty(dbName))
                 connectionString = _configuration.GetConnectionString("Pumpk1nDatabase");
             else
-                connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};UseSSLStream=true;TrustServerCertificate=true";
+                connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
             services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
             
