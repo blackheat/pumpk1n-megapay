@@ -45,7 +45,7 @@ namespace pumpk1n_backend.Services.Products
                 }
             }
         }
-
+        
         public async Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, long productId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())

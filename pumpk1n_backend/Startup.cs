@@ -14,7 +14,9 @@ using pumpk1n_backend.Helpers.Accounts;
 using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Services.Accounts;
+using pumpk1n_backend.Services.InternalStuffs;
 using pumpk1n_backend.Services.Products;
+using pumpk1n_backend.Services.Suppliers;
 using pumpk1n_backend.Settings;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -98,6 +100,8 @@ namespace pumpk1n_backend
             // Configuring D-I for Services
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IInternalService, InternalService>();
             
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();

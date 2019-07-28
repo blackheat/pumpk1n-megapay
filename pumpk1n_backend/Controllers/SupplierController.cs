@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pumpk1n_backend.Attributes;
 using pumpk1n_backend.Models.TransferModels.Suppliers;
@@ -21,6 +22,7 @@ namespace pumpk1n_backend.Controllers
         }
         
         [HttpPost]
+        [Authorize(Roles = "InternalUser")]
         [Route("")]
         public async Task<IActionResult> InsertSupplier([FromBody] SupplierInsertModel model)
         {
@@ -29,6 +31,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpPatch]
+        [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
         public async Task<IActionResult> UpdateSupplier(long id, [FromBody] SupplierInsertModel model)
         {
@@ -37,6 +40,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteSupplier(long id)
         {
@@ -45,6 +49,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
         public async Task<IActionResult> GetSupplier(long id)
         {
@@ -53,6 +58,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "InternalUser")]
         [Route("")]
         public async Task<IActionResult> GetSuppliers(int startAt = 0, int count = 10, string name = "")
         {

@@ -28,7 +28,7 @@ namespace pumpk1n_backend.Services.Accounts
 
         #region Authentication
 
-        public async Task RegisterAccount(UserRegisterModel model)
+        public async Task RegisterAccount(UserRegisterModel model, UserType userType)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -47,6 +47,7 @@ namespace pumpk1n_backend.Services.Accounts
                     user.HashedPassword = StringUtilities.HashPassword(model.Password, user.Nonce);
                     user.RegisteredDate = currentDate;
                     user.UpdatedDate = currentDate;
+                    user.UserType = userType;
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -75,7 +76,7 @@ namespace pumpk1n_backend.Services.Accounts
                 if (!hashedPassword.Equals(user.HashedPassword))
                     throw new InvalidCredentialsException();
 
-                var token = _accountHelper.JwtGenerator(user.Id, 0, UserType.NormalUser);
+                var token = _accountHelper.JwtGenerator(user.Id, 0, user.UserType);
                 var userTokenModel = new UserBearerTokenModel
                 {
                     Token = token

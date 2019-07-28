@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pumpk1n_backend.Attributes;
 using pumpk1n_backend.Models.TransferModels.Products;
@@ -21,6 +22,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "InternalUser")]
         [Route("")]
         public async Task<IActionResult> InsertProduct([FromBody] ProductInsertModel model)
         {
@@ -29,6 +31,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpPatch]
+        [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
         public async Task<IActionResult> UpdateProduct(long id, [FromBody] ProductInsertModel model)
         {
@@ -37,6 +40,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteProduct(long id)
         {
@@ -45,6 +49,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("{id}")]
         public async Task<IActionResult> GetProduct(long id)
         {
@@ -53,6 +58,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("")]
         public async Task<IActionResult> GetProducts(int startAt = 0, int count = 10, string name = "")
         {
