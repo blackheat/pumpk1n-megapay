@@ -23,6 +23,11 @@ namespace pumpk1n_backend.Controllers
             _accountService = accountService;
         }
         
+        /// <summary>
+        /// Login
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginModel model)
@@ -31,6 +36,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// Register
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterModel model)
@@ -39,6 +49,10 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondStatusCode(HttpStatusCode.Created);
         }
 
+        /// <summary>
+        /// Get current logged in user's information
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
         [Route("info")]
@@ -46,6 +60,36 @@ namespace pumpk1n_backend.Controllers
         {
             var userId = long.Parse(User.Claims.First().Subject.Name);
             var result = await _accountService.GetUserDetails(userId);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Get specific user's information
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/info")]
+        public async Task<IActionResult> GetSpecificUserInfo(long id)
+        {
+            var result = await _accountService.GetUserDetails(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Get users information
+        /// </summary>
+        /// <param name="startAt">From Nth user</param>
+        /// <param name="count">Count</param>
+        /// <param name="name">Search by full name</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "InternalUser")]
+        [Route("")]
+        public async Task<IActionResult> GetUsers(int startAt, int count, string name = "")
+        {
+            var result = await _accountService.GetUsers(startAt, count, name);
             return ApiResponder.RespondSuccess(result);
         }
     }

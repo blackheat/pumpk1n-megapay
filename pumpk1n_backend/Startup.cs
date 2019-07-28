@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -79,6 +80,9 @@ namespace pumpk1n_backend
                 });
                 
                 c.DescribeAllEnumsAsStrings();
+                
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "api-documentation.xml");
+                c.IncludeXmlComments(xmlPath);
             });
             
             // Add DatabaseContext with DB connection string

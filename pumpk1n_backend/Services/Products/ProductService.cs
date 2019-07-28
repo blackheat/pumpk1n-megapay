@@ -31,6 +31,7 @@ namespace pumpk1n_backend.Services.Products
                 try
                 {
                     var product = _mapper.Map<ProductInsertModel, Product>(model);
+                    product.AddedDate = DateTime.UtcNow;
                     _context.Products.Add(product);
 
                     await _context.SaveChangesAsync();
@@ -56,7 +57,7 @@ namespace pumpk1n_backend.Services.Products
 
                     if (product == null)
                         throw new ProductNotFoundException();
-
+                    
                     _mapper.Map(model, product);
 
                     _context.Products.Update(product);
@@ -124,7 +125,9 @@ namespace pumpk1n_backend.Services.Products
         public async Task<CustomList<ProductReturnModel>> GetProducts(int startAt, int count, string name = "")
         {
             var products = await _context.Products
-                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).Skip(startAt)
+                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(p => p.AddedDate)
+                .Skip(startAt)
                 .Take(count).ToListAsync();
             var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
             productReturnModels.StartAt = startAt;

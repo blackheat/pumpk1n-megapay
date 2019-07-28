@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Exceptions.Accounts;
 using pumpk1n_backend.Helpers.Accounts;
+using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Accounts;
 using pumpk1n_backend.Models.ReturnModels.Accounts;
@@ -100,6 +103,21 @@ namespace pumpk1n_backend.Services.Accounts
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             var userInformationModel = _mapper.Map<User, UserInformationModel>(user);
             return userInformationModel;
+        }
+
+        public async Task<CustomList<UserInformationModel>> GetUsers(int startAt, int count, string name = "")
+        {
+            var users = await _context.Users
+                .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
+            
+            var userReturnModels = _mapper.Map<List<User>, CustomList<UserInformationModel>>(users);
+            userReturnModels.StartAt = startAt;
+            userReturnModels.EndAt = startAt + users.Count;
+            userReturnModels.Total = users.Count;
+            userReturnModels.IsListPartial = true;
+
+            return userReturnModels;
         }
 
         #endregion

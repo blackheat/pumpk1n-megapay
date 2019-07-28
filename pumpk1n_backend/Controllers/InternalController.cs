@@ -26,6 +26,12 @@ namespace pumpk1n_backend.Controllers
             _internalService = internalService;
         }
 
+        /// <summary>
+        /// Register an Internal Account
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="internalToken">Hail Mary Token</param>
+        /// <returns></returns>
         [HttpPost]
         [Route("account/register")]
         public async Task<IActionResult> RegisterInternalAccount([FromBody] UserRegisterModel model, [FromHeader(Name = "X-Internal-Hail-Mary-Token")] string internalToken)
@@ -36,6 +42,12 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondStatusCode(HttpStatusCode.Created);
         }
 
+        /// <summary>
+        /// Change an account role (to internal or normal)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="roleId">User role</param>
+        /// <returns></returns>
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
         [Route("account/{id}/role/{roleId}")]

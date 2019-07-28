@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,7 @@ namespace pumpk1n_backend.Models.Entities.Suppliers
         public string Address { get; set; }
         public string Telephone { get; set; }
         public string Website { get; set; }
+        public DateTime AddedDate { get; set; }
         
         // Deprecated
         public bool Deprecated { get; set; }

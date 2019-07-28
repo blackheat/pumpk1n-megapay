@@ -31,6 +31,7 @@ namespace pumpk1n_backend.Services.Suppliers
                 try
                 {
                     var supplier = _mapper.Map<SupplierInsertModel, Supplier>(model);
+                    supplier.AddedDate = DateTime.UtcNow;
                     _context.Suppliers.Add(supplier);
                     
                     await _context.SaveChangesAsync();

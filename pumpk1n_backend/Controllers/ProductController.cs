@@ -21,6 +21,11 @@ namespace pumpk1n_backend.Controllers
             _productService = productService;
         }
 
+        /// <summary>
+        /// [Internal] Add Product
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "InternalUser")]
         [Route("")]
@@ -30,6 +35,12 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Update Product
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPatch]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
@@ -39,6 +50,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Delete Product
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
@@ -48,6 +64,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
 
+        /// <summary>
+        /// Get specific product details
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
         [Route("{id}")]
@@ -57,6 +78,13 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// Get products
+        /// </summary>
+        /// <param name="startAt">From Nth product</param>
+        /// <param name="count">Count</param>
+        /// <param name="name">Search by name</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
         [Route("")]
@@ -66,6 +94,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Mark Product As Deprecated
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/deprecation")]
@@ -75,6 +108,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
 
+        /// <summary>
+        /// [Internal] Mark Product as NOT Deprecated
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/deprecation")]

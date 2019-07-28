@@ -21,6 +21,11 @@ namespace pumpk1n_backend.Controllers
             _supplierService = supplierService;
         }
         
+        /// <summary>
+        /// [Internal] Add Supplier
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "InternalUser")]
         [Route("")]
@@ -30,6 +35,12 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Update supplier details
+        /// </summary>
+        /// <param name="id">Supplier ID</param>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPatch]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
@@ -39,6 +50,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Delete supplier
+        /// </summary>
+        /// <param name="id">Supplier ID</param>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
@@ -48,6 +64,11 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
 
+        /// <summary>
+        /// [Internal] Get specific supplier details
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}")]
@@ -57,6 +78,13 @@ namespace pumpk1n_backend.Controllers
             return ApiResponder.RespondSuccess(result);
         }
 
+        /// <summary>
+        /// [Internal] Get suppliers
+        /// </summary>
+        /// <param name="startAt">From Nth supplier</param>
+        /// <param name="count">Count</param>
+        /// <param name="name">Search by name</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
         [Route("")]
