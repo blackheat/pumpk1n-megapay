@@ -14,6 +14,9 @@
         UserAlreadyExistsException = 2002,
         
         // Products
-        ProductNotFoundException = 3001
+        ProductNotFoundException = 3001,
+        
+        // Suppliers
+        SupplierNotFoundException = 4001
     }
 }

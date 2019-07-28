@@ -153,7 +153,7 @@ namespace pumpk1n_backend
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pumpk1n API V1");
-                c.RoutePrefix = String.Empty;
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseHttpsRedirection();

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Models.Entities.Accounts;
 using pumpk1n_backend.Models.Entities.Products;
+using pumpk1n_backend.Models.Entities.Suppliers;
 
 namespace pumpk1n_backend.Models.DatabaseContexts
 {
@@ -11,6 +12,7 @@ namespace pumpk1n_backend.Models.DatabaseContexts
         
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
