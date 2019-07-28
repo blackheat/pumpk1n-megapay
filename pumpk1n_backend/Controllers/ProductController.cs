@@ -65,5 +65,23 @@ namespace pumpk1n_backend.Controllers
             var result = await _productService.GetProducts(startAt, count, name);
             return ApiResponder.RespondSuccess(result);
         }
+
+        [HttpPut]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/deprecation")]
+        public async Task<IActionResult> MarkProductAsDeprecated(long id)
+        {
+            await _productService.ChangeProductDeprecatedStatus(id, true);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
+
+        [HttpDelete]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/deprecation")]
+        public async Task<IActionResult> UnmarkProductAsDeprecated(long id)
+        {
+            await _productService.ChangeProductDeprecatedStatus(id, false);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
     }
 }

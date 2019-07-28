@@ -13,5 +13,8 @@ namespace pumpk1n_backend.Models.Entities.Suppliers
         public string Address { get; set; }
         public string Telephone { get; set; }
         public string Website { get; set; }
+        
+        // Deprecated
+        public bool Deprecated { get; set; }
     }
 }

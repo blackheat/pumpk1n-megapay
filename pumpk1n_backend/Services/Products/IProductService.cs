@@ -12,5 +12,6 @@ namespace pumpk1n_backend.Services.Products
         Task DeleteProduct(long productId);
         Task<ProductReturnModel> GetProduct(long productId);
         Task<CustomList<ProductReturnModel>> GetProducts(int startAt, int count, string name = "");
+        Task ChangeProductDeprecatedStatus(long productId, bool isDeprecated);
     }
 }

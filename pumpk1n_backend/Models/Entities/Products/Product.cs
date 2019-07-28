@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,10 +9,16 @@ namespace pumpk1n_backend.Models.Entities.Products
     public class Product
     {
         [Key]
-        public Int64 Id { get; set; }
-        public String Name { get; set; }
-        public String ShortDescription { get; set; }
-        public String LongDescription { get; set; }
-        public String Image { get; set; }
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string ShortDescription { get; set; }
+        public string LongDescription { get; set; }
+        public string Image { get; set; }
+        public DateTime AddedDate { get; set; }
+        
+        // Deprecation
+        public bool Deprecated { get; set; }
+
+        public virtual ICollection<ProductInventory> ProductInventories { get; set; }
     }
 }

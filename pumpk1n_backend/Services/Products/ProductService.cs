@@ -32,7 +32,7 @@ namespace pumpk1n_backend.Services.Products
                 {
                     var product = _mapper.Map<ProductInsertModel, Product>(model);
                     _context.Products.Add(product);
-                    
+
                     await _context.SaveChangesAsync();
                     transaction.Commit();
 
@@ -45,7 +45,7 @@ namespace pumpk1n_backend.Services.Products
                 }
             }
         }
-        
+
         public async Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, long productId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -53,7 +53,7 @@ namespace pumpk1n_backend.Services.Products
                 try
                 {
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
-                    
+
                     if (product == null)
                         throw new ProductNotFoundException();
 
@@ -80,7 +80,7 @@ namespace pumpk1n_backend.Services.Products
                 try
                 {
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
-                    
+
                     if (product == null)
                         throw new ProductNotFoundException();
 
@@ -103,7 +103,7 @@ namespace pumpk1n_backend.Services.Products
                 try
                 {
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
-                    
+
                     if (product == null)
                         throw new ProductNotFoundException();
 
@@ -133,6 +133,29 @@ namespace pumpk1n_backend.Services.Products
             productReturnModels.IsListPartial = true;
 
             return productReturnModels;
+        }
+
+        public async Task ChangeProductDeprecatedStatus(long productId, bool isDeprecated)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+                    if (product == null)
+                        throw new ProductNotFoundException();
+
+                    product.Deprecated = isDeprecated;
+
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }
