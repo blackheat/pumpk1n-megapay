@@ -14,6 +14,7 @@ namespace pumpk1n_backend.Models.Entities.Products
         public string ShortDescription { get; set; }
         public string LongDescription { get; set; }
         public string Image { get; set; }
+        public float Price { get; set; }
         public DateTime AddedDate { get; set; }
         
         // Deprecation
