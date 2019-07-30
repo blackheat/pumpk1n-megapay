@@ -46,7 +46,7 @@ namespace pumpk1n_backend.Controllers
         public async Task<IActionResult> ImportProduct(InventoryImportModel model)
         {
             var result = await _inventoryService.ImportProduct(model);
-            return ApiResponder.RespondSuccess(model);
+            return ApiResponder.RespondSuccess(result);
         }
     }
 }
