@@ -18,6 +18,9 @@ namespace pumpk1n_backend.Services.Products
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
 
+        private const string DefaultImageUrl =
+            "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c05962484.png";
+
         public ProductService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
@@ -99,27 +102,15 @@ namespace pumpk1n_backend.Services.Products
 
         public async Task<ProductReturnModel> GetProduct(long productId)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
 
-                    if (product == null)
-                        throw new ProductNotFoundException();
+            if (product == null)
+                throw new ProductNotFoundException();
 
-                    _context.Products.Remove(product);
-                    await _context.SaveChangesAsync();
-                    transaction.Commit();
+            if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
+                product.Image = DefaultImageUrl;
 
-                    return _mapper.Map<Product, ProductReturnModel>(product);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
+            return _mapper.Map<Product, ProductReturnModel>(product);
         }
 
         public async Task<CustomList<ProductReturnModel>> GetProducts(int startAt, int count, string name = "")
@@ -129,6 +120,11 @@ namespace pumpk1n_backend.Services.Products
                 .OrderByDescending(p => p.AddedDate)
                 .Skip(startAt)
                 .Take(count).ToListAsync();
+            
+            foreach (var product in products)
+                if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
+                    product.Image = DefaultImageUrl;
+            
             var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
             productReturnModels.StartAt = startAt;
             productReturnModels.EndAt = startAt + products.Count;

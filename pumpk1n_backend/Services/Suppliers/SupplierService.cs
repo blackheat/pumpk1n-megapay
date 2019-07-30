@@ -99,27 +99,12 @@ namespace pumpk1n_backend.Services.Suppliers
 
         public async Task<SupplierReturnModel> GetSupplier(long supplierId)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var supplier = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == supplierId);
-                    
-                    if (supplier == null)
-                        throw new SupplierNotFoundException();
-
-                    _context.Suppliers.Remove(supplier);
-                    await _context.SaveChangesAsync();
-                    transaction.Commit();
-
-                    return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
+            var supplier = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == supplierId);
+            
+            if (supplier == null)
+                throw new SupplierNotFoundException();
+            
+            return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
         }
 
         public async Task<CustomList<SupplierReturnModel>> GetSuppliers(int startAt, int count, string name = "")
