@@ -16,6 +16,7 @@ using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Services.Accounts;
 using pumpk1n_backend.Services.InternalStuffs;
+using pumpk1n_backend.Services.Inventories;
 using pumpk1n_backend.Services.Products;
 using pumpk1n_backend.Services.Suppliers;
 using pumpk1n_backend.Settings;
@@ -106,6 +107,7 @@ namespace pumpk1n_backend
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IInternalService, InternalService>();
+            services.AddScoped<IInventoryService, InventoryService>();
             
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
