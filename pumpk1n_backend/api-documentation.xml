@@ -56,6 +56,21 @@
             <param name="roleId">User role</param>
             <returns></returns>
         </member>
+        <member name="M:pumpk1n_backend.Controllers.InventoryController.GetInventory(System.Int32,System.Int32)">
+            <summary>
+            Get inventory list
+            </summary>
+            <param name="startAt">From Nth product</param>
+            <param name="count">Count</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.InventoryController.ImportProduct(pumpk1n_backend.Models.TransferModels.Inventories.InventoryImportModel)">
+            <summary>
+            Import a product
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
         <member name="M:pumpk1n_backend.Controllers.ProductController.InsertProduct(pumpk1n_backend.Models.TransferModels.Products.ProductInsertModel)">
             <summary>
             [Internal] Add Product
