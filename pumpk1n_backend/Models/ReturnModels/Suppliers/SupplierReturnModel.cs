@@ -1,3 +1,4 @@
+using System;
 using AutoMapper;
 using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.Entities.Suppliers;
@@ -12,6 +13,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Suppliers
         public string Address { get; set; }
         public string Telephone { get; set; }
         public string Website { get; set; }
+        public DateTime AddedDate { get; set; }
         
         public void CreateMappings(IMapperConfigurationExpression configuration)
         {
@@ -21,7 +23,8 @@ namespace pumpk1n_backend.Models.ReturnModels.Suppliers
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.Telephone, opt => opt.MapFrom(src => src.Telephone))
-                .ForMember(dest => dest.Website, opt => opt.MapFrom(src => src.Website));
+                .ForMember(dest => dest.Website, opt => opt.MapFrom(src => src.Website))
+                .ForMember(dest => dest.AddedDate, opt => opt.MapFrom(src => src.AddedDate));
         }
     }
 }

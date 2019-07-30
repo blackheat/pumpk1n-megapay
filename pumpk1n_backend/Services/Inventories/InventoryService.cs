@@ -33,6 +33,7 @@ namespace pumpk1n_backend.Services.Inventories
 
                     _context.ProductInventories.Add(item);
                     await _context.SaveChangesAsync();
+                    transaction.Commit();
 
                     return _mapper.Map<ProductInventory, InventoryReturnModel>(item);
                 }

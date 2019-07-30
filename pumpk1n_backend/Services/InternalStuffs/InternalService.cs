@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -9,20 +10,30 @@ namespace pumpk1n_backend.Services.InternalStuffs
     public class InternalService : IInternalService
     {
         private readonly DatabaseContext _context;
-        private readonly IMapper _mapper;
 
-        public InternalService(DatabaseContext context, IMapper mapper)
+        public InternalService(DatabaseContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task ChangeAccountRole(long accountId, UserType roleId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == accountId);
-            user.UserType = roleId;
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == accountId);
+                    user.UserType = roleId;
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }
