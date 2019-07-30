@@ -20,7 +20,7 @@ namespace pumpk1n_backend.Helpers.Accounts
             _jwtSettings = jwtSettings.Value;
         }
         
-        public string JwtGenerator(long userId, long loginAttemptId, UserType userType)
+        public string JwtGenerator(long userId, string fullName, long loginAttemptId, UserType userType)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
@@ -29,6 +29,7 @@ namespace pumpk1n_backend.Helpers.Accounts
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, userId.ToString(CultureInfo.InvariantCulture)),
+                    new Claim(ClaimTypes.NameIdentifier, fullName.ToString(CultureInfo.InvariantCulture)), 
                     new Claim(ClaimTypes.Sid, loginAttemptId.ToString(CultureInfo.InvariantCulture)),
                     new Claim(ClaimTypes.Role, userType.ToString())
                 }),

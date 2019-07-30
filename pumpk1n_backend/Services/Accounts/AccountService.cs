@@ -79,7 +79,7 @@ namespace pumpk1n_backend.Services.Accounts
                 if (!hashedPassword.Equals(user.HashedPassword))
                     throw new InvalidCredentialsException();
 
-                var token = _accountHelper.JwtGenerator(user.Id, 0, user.UserType);
+                var token = _accountHelper.JwtGenerator(user.Id, user.FullName, 0, user.UserType);
                 var userTokenModel = new UserBearerTokenModel
                 {
                     Token = token
