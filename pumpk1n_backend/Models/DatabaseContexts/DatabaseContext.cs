@@ -1,6 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Models.Entities.Accounts;
+using pumpk1n_backend.Models.Entities.Orders;
+using pumpk1n_backend.Models.Entities.Products;
+using pumpk1n_backend.Models.Entities.Suppliers;
+using pumpk1n_backend.Models.Entities.Tokens;
 
 namespace pumpk1n_backend.Models.DatabaseContexts
 {
@@ -9,7 +13,12 @@ namespace pumpk1n_backend.Models.DatabaseContexts
         public DatabaseContext(DbContextOptions options) : base(options) { }
         
         public DbSet<User> Users { get; set; }
-        public DbSet<InternalUser> InternalUsers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductInventory> ProductInventories { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<UserTokenTransaction> UserTokenTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +15,10 @@ using pumpk1n_backend.Helpers.Accounts;
 using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Services.Accounts;
+using pumpk1n_backend.Services.InternalStuffs;
+using pumpk1n_backend.Services.Inventories;
+using pumpk1n_backend.Services.Products;
+using pumpk1n_backend.Services.Suppliers;
 using pumpk1n_backend.Settings;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -66,20 +72,42 @@ namespace pumpk1n_backend
                     Type = "apiKey"
                 });
                 
+                c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {
+                        "Bearer",
+                        new string[] { }
+                    }
+                });
+                
                 c.DescribeAllEnumsAsStrings();
+                
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "api-documentation.xml");
+                c.IncludeXmlComments(xmlPath);
             });
             
             // Add DatabaseContext with DB connection string
-            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-
-            if (String.IsNullOrEmpty(connectionString))
+            var dbHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+            var dbPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+            var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+            var dbPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+            var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+            string connectionString;
+            
+            if (string.IsNullOrEmpty(dbHost) || string.IsNullOrEmpty(dbPort) || string.IsNullOrEmpty(dbUser) 
+                || string.IsNullOrEmpty(dbPassword) || string.IsNullOrEmpty(dbName))
                 connectionString = _configuration.GetConnectionString("Pumpk1nDatabase");
+            else
+                connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
             services.AddDbContext<DatabaseContext>(options => options.UseNpgsql(connectionString));
             
             // Configuring D-I for Services
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IInternalAccountService, InternalAccountService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IInternalService, InternalService>();
+            services.AddScoped<IInventoryService, InventoryService>();
             
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
@@ -109,6 +137,16 @@ namespace pumpk1n_backend
                     };
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllHeaders", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
@@ -117,6 +155,9 @@ namespace pumpk1n_backend
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseForwardedHeaders();
+            app.UseCors("AllowAllHeaders");
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -135,7 +176,7 @@ namespace pumpk1n_backend
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pumpk1n API V1");
-                c.RoutePrefix = String.Empty;
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseHttpsRedirection();

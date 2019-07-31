@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -11,7 +10,7 @@ namespace pumpk1n_backend.Responders
     public class JsonWithHttpCodeResult : JsonResult
     {
         private readonly HttpStatusCode _httpStatusCode;
-        private readonly String _eTag;
+        private readonly string _eTag;
 
         public JsonWithHttpCodeResult(object value) : base(value)
         {
@@ -33,13 +32,13 @@ namespace pumpk1n_backend.Responders
             _httpStatusCode = httpStatusCode;
         }
 
-        public JsonWithHttpCodeResult(object value, String eTag, HttpStatusCode httpStatusCode) : base(value)
+        public JsonWithHttpCodeResult(object value, string eTag, HttpStatusCode httpStatusCode) : base(value)
         {
             _httpStatusCode = httpStatusCode;
             _eTag = eTag;
         }
 
-        public JsonWithHttpCodeResult(object value, String eTag, JsonSerializerSettings serializerSettings, HttpStatusCode httpStatusCode) : base(value, serializerSettings)
+        public JsonWithHttpCodeResult(object value, string eTag, JsonSerializerSettings serializerSettings, HttpStatusCode httpStatusCode) : base(value, serializerSettings)
         {
             _httpStatusCode = httpStatusCode;
             _eTag = eTag;
@@ -47,9 +46,9 @@ namespace pumpk1n_backend.Responders
 
         public override void ExecuteResult(ActionContext context)
         {
-            context.HttpContext.Response.StatusCode = (Int32) _httpStatusCode;
+            context.HttpContext.Response.StatusCode = (int) _httpStatusCode;
 
-            if (!String.IsNullOrEmpty(_eTag))
+            if (!string.IsNullOrEmpty(_eTag))
                 context.HttpContext.Response.Headers.Add("ETag", _eTag);
 
             base.ExecuteResult(context);
@@ -57,9 +56,9 @@ namespace pumpk1n_backend.Responders
 
         public override Task ExecuteResultAsync(ActionContext context)
         {
-            context.HttpContext.Response.StatusCode = (Int32)_httpStatusCode;
+            context.HttpContext.Response.StatusCode = (int)_httpStatusCode;
 
-            if (!String.IsNullOrEmpty(_eTag))
+            if (!string.IsNullOrEmpty(_eTag))
                 context.HttpContext.Response.Headers.Add("ETag", _eTag);
 
             return base.ExecuteResultAsync(context);
@@ -69,8 +68,8 @@ namespace pumpk1n_backend.Responders
     public class ResponseObject
     {
         public PaginationReturnModel PaginationReturnData { get; set; }
-        public String ResponseType { get; set; }
-        public Object Data { get; set; }
+        public string ResponseType { get; set; }
+        public object Data { get; set; }
     }
 
     public class ErrorResponseObject : ResponseObject
@@ -82,10 +81,10 @@ namespace pumpk1n_backend.Responders
     {
         public static IActionResult RespondStatusCode(HttpStatusCode statusCode)
         {
-            return new StatusCodeResult((Int32) statusCode);
+            return new StatusCodeResult((int) statusCode);
         }
 
-        public static JsonResult RespondSuccess(Object data, String eTag = null, PaginationReturnModel paginationReturnModel = null)
+        public static JsonResult RespondSuccess(object data, string eTag = null, PaginationReturnModel paginationReturnModel = null)
         {
             var response = new ResponseObject
             {
@@ -97,7 +96,7 @@ namespace pumpk1n_backend.Responders
             return new JsonWithHttpCodeResult(response, eTag, HttpStatusCode.OK);
         }
 
-        public static JsonResult RespondHandledError(Object data, ErrorCode errorCode)
+        public static JsonResult RespondHandledError(object data, ErrorCode errorCode)
         {
             var response = new ErrorResponseObject
             {
@@ -108,7 +107,7 @@ namespace pumpk1n_backend.Responders
             return new JsonWithHttpCodeResult(response, HttpStatusCode.BadRequest);
         }
 
-        public static JsonResult RespondUnhandledError(Object data, ErrorCode errorCode)
+        public static JsonResult RespondUnhandledError(object data, ErrorCode errorCode)
         {
             var response = new ErrorResponseObject
             {

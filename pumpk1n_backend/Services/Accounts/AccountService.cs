@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Exceptions.Accounts;
 using pumpk1n_backend.Helpers.Accounts;
+using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Accounts;
 using pumpk1n_backend.Models.ReturnModels.Accounts;
@@ -28,7 +31,7 @@ namespace pumpk1n_backend.Services.Accounts
 
         #region Authentication
 
-        public async Task RegisterAccount(UserRegisterModel model)
+        public async Task RegisterAccount(UserRegisterModel model, UserType userType)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -47,6 +50,7 @@ namespace pumpk1n_backend.Services.Accounts
                     user.HashedPassword = StringUtilities.HashPassword(model.Password, user.Nonce);
                     user.RegisteredDate = currentDate;
                     user.UpdatedDate = currentDate;
+                    user.UserType = userType;
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -74,11 +78,8 @@ namespace pumpk1n_backend.Services.Accounts
                 var hashedPassword = StringUtilities.HashPassword(model.Password, user.Nonce);
                 if (!hashedPassword.Equals(user.HashedPassword))
                     throw new InvalidCredentialsException();
-                
-                if (user.ActivatedDate == null)
-                    throw new UserNotActivatedException();
 
-                var token = _accountHelper.JwtGenerator(user.Id, 0, UserType.NormalUser);
+                var token = _accountHelper.JwtGenerator(user.Id, user.FullName, 0, user.UserType);
                 var userTokenModel = new UserBearerTokenModel
                 {
                     Token = token
@@ -97,11 +98,26 @@ namespace pumpk1n_backend.Services.Accounts
 
         #region Account Details
 
-        public async Task<UserInformationModel> GetUserDetails(Int64 userId)
+        public async Task<UserInformationModel> GetUserDetails(long userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             var userInformationModel = _mapper.Map<User, UserInformationModel>(user);
             return userInformationModel;
+        }
+
+        public async Task<CustomList<UserInformationModel>> GetUsers(int startAt, int count, string name = "")
+        {
+            var users = await _context.Users
+                .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
+            
+            var userReturnModels = _mapper.Map<List<User>, CustomList<UserInformationModel>>(users);
+            userReturnModels.StartAt = startAt;
+            userReturnModels.EndAt = startAt + users.Count;
+            userReturnModels.Total = users.Count;
+            userReturnModels.IsListPartial = true;
+
+            return userReturnModels;
         }
 
         #endregion

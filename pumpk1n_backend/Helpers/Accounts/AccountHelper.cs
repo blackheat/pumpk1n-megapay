@@ -13,25 +13,23 @@ namespace pumpk1n_backend.Helpers.Accounts
 {
     public class AccountHelper : IAccountHelper
     {
-        private readonly DatabaseContext _context;
         private readonly JwtSettings _jwtSettings;
 
-        public AccountHelper(DatabaseContext context, IOptions<JwtSettings> jwtSettings)
+        public AccountHelper(IOptions<JwtSettings> jwtSettings)
         {
-            _context = context;
             _jwtSettings = jwtSettings.Value;
         }
         
-        public String JwtGenerator(Int64 userId, Int64 loginAttemptId, UserType userType)
+        public string JwtGenerator(long userId, string fullName, long loginAttemptId, UserType userType)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            Console.WriteLine("Key : " + _jwtSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, userId.ToString(CultureInfo.InvariantCulture)),
+                    new Claim(ClaimTypes.NameIdentifier, fullName.ToString(CultureInfo.InvariantCulture)), 
                     new Claim(ClaimTypes.Sid, loginAttemptId.ToString(CultureInfo.InvariantCulture)),
                     new Claim(ClaimTypes.Role, userType.ToString())
                 }),

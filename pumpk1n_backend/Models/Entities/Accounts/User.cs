@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using pumpk1n_backend.Enumerations;
+using pumpk1n_backend.Models.Entities.Orders;
+using pumpk1n_backend.Models.Entities.Tokens;
 
 namespace pumpk1n_backend.Models.Entities.Accounts
 {
@@ -8,26 +12,17 @@ namespace pumpk1n_backend.Models.Entities.Accounts
     public class User
     {
         [Key]
-        public Int64 Id { get; set; }
-        public String GoogleOAuthProfileId { get; set; }
-        public String Email { get; set; }
-        public String PhoneNumber { get; set; }
-        public DateTime? PhoneNumberConfirmedDate { get; set; }
-        public String FullName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public String Nonce { get; set; }
-        public String HashedPassword { get; set; }
+        public long Id { get; set; }
+        public string Email { get; set; }
+        public string FullName { get; set; }
+        public string Nonce { get; set; }
+        public string HashedPassword { get; set; }
         
         public DateTime RegisteredDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public Boolean UserProfileCompleted { get; set; }
+        public UserType UserType { get; set; }
         
-        public String UserActivationCode { get; set; }
-        public DateTime? UserActivationCodeIssuedDate { get; set; }
-        public DateTime? ActivatedDate { get; set; }
-        
-        public String PasswordResetCode { get; set; }
-        public DateTime? PasswordResetCodeIssuedDate { get; set; }
-        public DateTime? PasswordResetCodeUsedDate { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<UserTokenTransaction> UserTokenTransactions { get; set; }
     }
 }
