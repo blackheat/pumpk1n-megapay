@@ -1,0 +1,123 @@
+version: 2
+jobs:
+  build:
+    working_directory: /app
+    docker:
+      - image: docker:latest
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Generate build version (based on current datetime)
+          command: |
+            echo $(date -u +%Y%m%d%H%M%S) > build_version
+      - run:
+          name: Build container
+          command: |
+            docker build -t blackheat/pumpk1n-backend:$(cat build_version) .
+      - run:
+          name: Save image layer cache
+          command: |
+            docker save -o pumpk1n_backend.tar blackheat/pumpk1n-backend:$(cat build_version)
+      - run:
+          name: Create workspace and artifacts directory
+          command: |
+            mkdir workspace
+            mkdir artifacts
+      - run:
+          name: Save image to shared workspace and as artifact
+          command: |
+            cp pumpk1n_backend.tar workspace/
+      - run:
+          name: Save build version to workspace
+          command: |
+            cp build_version workspace/
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - build_version
+            - pumpk1n_backend.tar
+  push_to_registry:
+    working_directory: /app
+    docker:
+      - image: docker:latest
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: /app/workspace
+      - run:
+          name: Login to Dockerhub
+          command: |
+            docker login --username=$DOCKERHUB_USERNAME --password=$DOCKERHUB_PASSWORD
+      - run:
+          working_directory: workspace
+          name: Import built image
+          command: |
+            docker load --input pumpk1n_backend.tar
+      - run:
+          working_directory: workspace
+          name: Push container to Dockerhub registry
+          command: |
+            docker push blackheat/pumpk1n-backend:$(cat build_version)
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - build_version
+  deploy:
+    working_directory: /app
+    docker:
+      - image: debian:latest
+    steps:
+      - run:
+          name: Install necessary dependencies
+          command: |
+            apt-get update
+            apt-get install -y openssh-client openssl ca-certificates lsb-release curl gnupg
+      - attach_workspace:
+          at: /app/workspace
+      - run:
+          name: Install GCloud SDK and kubectl
+          command: |
+            # Create environment variable for correct distribution
+            export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+            # Add the Cloud SDK distribution URI as a package source
+            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            # Import the Google Cloud Platform public key
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+            # Update the package list and install the Cloud SDK
+            apt-get update -y && apt-get install -y google-cloud-sdk kubectl    
+      - run:
+          name: Initialize & Authenticate GCloud SDK
+          command: |
+            echo "${GCP_KEY_FILE}" | base64 --decode >> /tmp/gcp_key.json
+            gcloud auth activate-service-account --key-file /tmp/gcp_key.json
+            gcloud config set project ${GCP_PROJECT_ID}
+      - run:
+          name: Get GKE credentials for Kubectl
+          command: |
+            gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region=us-central1-a
+      - run:
+          working_directory: workspace
+          name: Perform rolling update in Kubernetes
+          command: |
+            kubectl -n ${KUBE_NAMESPACE} set image deployments/pumpk1n-backend pumpk1n-backend=blackheat/pumpk1n-backend:$(cat build_version)
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - push_to_registry:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - push_to_registry
+          filters:
+            branches:
+              only: master
