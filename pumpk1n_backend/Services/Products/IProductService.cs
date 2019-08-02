@@ -11,7 +11,7 @@ namespace pumpk1n_backend.Services.Products
         Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, long productId);
         Task DeleteProduct(long productId);
         Task<ProductReturnModel> GetProduct(long productId);
-        Task<CustomList<ProductReturnModel>> GetProducts(int page, int count, string name = "");
+        Task<CustomList<ProductReturnModel>> GetProducts(int page, int count, ProductSearchFilterModel filterModel);
         Task ChangeProductDeprecatedStatus(long productId, bool isDeprecated);
         Task ChangeProductStockStatus(long productId, bool isOutOfStock);
     }

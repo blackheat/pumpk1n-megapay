@@ -114,15 +114,16 @@ namespace pumpk1n_backend.Services.Products
             return _mapper.Map<Product, ProductReturnModel>(product);
         }
 
-        public async Task<CustomList<ProductReturnModel>> GetProducts(int page, int count, string name = "")
+        public async Task<CustomList<ProductReturnModel>> GetProducts(int page, int count, ProductSearchFilterModel filterModel)
         {
             if (page <= 0 || count <= 0)
                 throw new InvalidPaginationDataException();
 
             var startAt = (page - 1) * count;
-            
+
             var products = await _context.Products
-                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(p => p.Name.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
+                            p.Price >= filterModel.MinPrice && p.Price <= filterModel.MaxPrice)
                 .OrderByDescending(p => p.AddedDate)
                 .Skip(startAt)
                 .Take(count).ToListAsync();
@@ -130,9 +131,10 @@ namespace pumpk1n_backend.Services.Products
             foreach (var product in products)
                 if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
                     product.Image = DefaultImageUrl;
-            
+
             var totalCount = await _context.Products
-                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(p => p.Name.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
+                            p.Price >= filterModel.MinPrice && p.Price <= filterModel.MaxPrice)
                 .OrderByDescending(p => p.AddedDate).CountAsync();
             var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
             

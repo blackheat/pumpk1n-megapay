@@ -12,6 +12,7 @@ namespace pumpk1n_backend.Models.TransferModels.Products
         public string LongDescription { get; set; }
         public string Image { get; set; }
         public float Price { get; set; }
+        public bool Deprecated { get; set; } = false;
         
         public void CreateMappings(IMapperConfigurationExpression configuration)
         {
@@ -20,6 +21,7 @@ namespace pumpk1n_backend.Models.TransferModels.Products
                 .ForMember(dest => dest.ShortDescription, opt => opt.MapFrom(src => src.ShortDescription))
                 .ForMember(dest => dest.LongDescription, opt => opt.MapFrom(src => src.LongDescription))
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
+                .ForMember(dest => dest.Deprecated, opt => opt.MapFrom(src => src.Deprecated))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
         }
     }
