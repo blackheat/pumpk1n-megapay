@@ -81,10 +81,9 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// Get products
         /// </summary>
-        /// <param name="filterModel"></param>
+        /// <param name="filterModel">Product filter model</param>
         /// <param name="count">Count</param>
         /// <param name="page">Page number</param>
-        /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize]
