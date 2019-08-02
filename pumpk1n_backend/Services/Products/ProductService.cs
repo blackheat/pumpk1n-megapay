@@ -125,10 +125,14 @@ namespace pumpk1n_backend.Services.Products
                 if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
                     product.Image = DefaultImageUrl;
             
+            var totalCount = await _context.Products
+                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(p => p.AddedDate).CountAsync();
+            
             var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
             productReturnModels.StartAt = startAt;
             productReturnModels.EndAt = startAt + products.Count;
-            productReturnModels.Total = products.Count;
+            productReturnModels.Total = totalCount;
             productReturnModels.IsListPartial = true;
 
             return productReturnModels;
@@ -145,6 +149,29 @@ namespace pumpk1n_backend.Services.Products
                         throw new ProductNotFoundException();
 
                     product.Deprecated = isDeprecated;
+
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+        
+        public async Task ChangeProductStockStatus(long productId, bool isOutOfStock)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+                    if (product == null)
+                        throw new ProductNotFoundException();
+
+                    product.OutOfStock = isOutOfStock;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();

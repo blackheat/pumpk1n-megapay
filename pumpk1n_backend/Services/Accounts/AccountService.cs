@@ -111,10 +111,14 @@ namespace pumpk1n_backend.Services.Accounts
                 .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
             
+            var totalCount = await _context.Users
+                .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(u => u.RegisteredDate).CountAsync();
+            
             var userReturnModels = _mapper.Map<List<User>, CustomList<UserInformationModel>>(users);
             userReturnModels.StartAt = startAt;
             userReturnModels.EndAt = startAt + users.Count;
-            userReturnModels.Total = users.Count;
+            userReturnModels.Total = totalCount;
             userReturnModels.IsListPartial = true;
 
             return userReturnModels;

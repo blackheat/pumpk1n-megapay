@@ -95,6 +95,8 @@ namespace pumpk1n_backend.Responders
 
             return new JsonWithHttpCodeResult(response, eTag, HttpStatusCode.OK);
         }
+        
+        
 
         public static JsonResult RespondHandledError(object data, ErrorCode errorCode)
         {

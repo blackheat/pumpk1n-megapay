@@ -112,10 +112,14 @@ namespace pumpk1n_backend.Services.Suppliers
             var suppliers = await _context.Suppliers
                 .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).Skip(startAt)
                 .Take(count).ToListAsync();
+            
+            var totalCount = await _context.Suppliers
+                .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).CountAsync();
+            
             var supplierReturnModels = _mapper.Map<List<Supplier>, CustomList<SupplierReturnModel>>(suppliers);
             supplierReturnModels.StartAt = startAt;
             supplierReturnModels.EndAt = startAt + suppliers.Count;
-            supplierReturnModels.Total = suppliers.Count;
+            supplierReturnModels.Total = totalCount;
             supplierReturnModels.IsListPartial = true;
 
             return supplierReturnModels;

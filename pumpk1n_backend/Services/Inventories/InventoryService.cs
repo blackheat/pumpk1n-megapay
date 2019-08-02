@@ -49,7 +49,14 @@ namespace pumpk1n_backend.Services.Inventories
         {
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
                 .OrderByDescending(i => i.ImportedDate).ToListAsync();
+
+            var totalCount = await _context.ProductInventories.OrderByDescending(i => i.ImportedDate).CountAsync();
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);
+            itemReturnModels.StartAt = startAt;
+            itemReturnModels.EndAt = startAt + items.Count;
+            itemReturnModels.IsListPartial = true;
+            itemReturnModels.Total = totalCount;
+            
             return itemReturnModels;
         }
     }

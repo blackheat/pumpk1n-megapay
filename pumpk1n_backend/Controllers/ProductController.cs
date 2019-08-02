@@ -121,5 +121,33 @@ namespace pumpk1n_backend.Controllers
             await _productService.ChangeProductDeprecatedStatus(id, false);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
+        
+        /// <summary>
+        /// [Internal] Change product stock status to out of stock
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/stock")]
+        public async Task<IActionResult> MarkProductAsOutOfStock(long id)
+        {
+            await _productService.ChangeProductStockStatus(id, true);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// [Internal] Change product stock status to available
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/stock")]
+        public async Task<IActionResult> UnmarkProductAsOutOfStock(long id)
+        {
+            await _productService.ChangeProductStockStatus(id, false);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
     }
 }

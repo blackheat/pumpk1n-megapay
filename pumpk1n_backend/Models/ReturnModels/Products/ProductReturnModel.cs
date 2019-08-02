@@ -13,6 +13,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Products
         public string LongDescription { get; set; }
         public string Image { get; set; }
         public float Price { get; set; }
+        public bool OutOfStock { get; set; }
         public DateTime AddedDate { get; set; }
         public bool Deprecated { get; set; }
         
@@ -26,6 +27,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Products
                 .ForMember(dest => dest.Deprecated, opt => opt.MapFrom(src => src.Deprecated))
                 .ForMember(dest => dest.AddedDate, opt => opt.MapFrom(src => src.AddedDate))
                 .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Image))
+                .ForMember(dest => dest.OutOfStock, opt => opt.MapFrom(src => src.OutOfStock))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price));
         }
     }

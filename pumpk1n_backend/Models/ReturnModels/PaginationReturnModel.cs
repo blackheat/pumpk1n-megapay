@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace pumpk1n_backend.Models.ReturnModels
+﻿namespace pumpk1n_backend.Models.ReturnModels
 {
     public class PaginationReturnModel
     {

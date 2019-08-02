@@ -123,6 +123,20 @@
             <param name="id">Product ID</param>
             <returns></returns>
         </member>
+        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsOutOfStock(System.Int64)">
+            <summary>
+            [Internal] Change product stock status to out of stock
+            </summary>
+            <param name="id">Product ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.ProductController.UnmarkProductAsOutOfStock(System.Int64)">
+            <summary>
+            [Internal] Change product stock status to available
+            </summary>
+            <param name="id">Product ID</param>
+            <returns></returns>
+        </member>
         <member name="M:pumpk1n_backend.Controllers.SupplierController.InsertSupplier(pumpk1n_backend.Models.TransferModels.Suppliers.SupplierInsertModel)">
             <summary>
             [Internal] Add Supplier
