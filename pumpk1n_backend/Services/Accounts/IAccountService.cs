@@ -11,6 +11,6 @@ namespace pumpk1n_backend.Services.Accounts
         Task RegisterAccount(UserRegisterModel model, UserType userType);
         Task<UserBearerTokenModel> UserLogin(UserLoginModel model);
         Task<UserInformationModel> GetUserDetails(long userId);
-        Task<CustomList<UserInformationModel>> GetUsers(int startAt, int count, string name = "");
+        Task<CustomList<UserInformationModel>> GetUsers(int page, int count, string name = "");
     }
 }

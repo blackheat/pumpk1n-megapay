@@ -11,6 +11,6 @@ namespace pumpk1n_backend.Services.Suppliers
         Task<SupplierReturnModel> UpdateSupplier(SupplierInsertModel model, long supplierId);
         Task DeleteSupplier(long supplierId);
         Task<SupplierReturnModel> GetSupplier(long supplierId);
-        Task<CustomList<SupplierReturnModel>> GetSuppliers(int startAt, int count, string name = "");
+        Task<CustomList<SupplierReturnModel>> GetSuppliers(int page, int count, string name = "");
     }
 }

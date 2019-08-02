@@ -35,7 +35,7 @@
             <summary>
             [Internal] Get users information
             </summary>
-            <param name="startAt">From Nth user</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by full name</param>
             <returns></returns>
@@ -60,7 +60,7 @@
             <summary>
             Get inventory list
             </summary>
-            <param name="startAt">From Nth product</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <returns></returns>
         </member>
@@ -104,7 +104,7 @@
             <summary>
             Get products
             </summary>
-            <param name="startAt">From Nth product</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by name</param>
             <returns></returns>
@@ -170,7 +170,7 @@
             <summary>
             [Internal] Get suppliers
             </summary>
-            <param name="startAt">From Nth supplier</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by name</param>
             <returns></returns>

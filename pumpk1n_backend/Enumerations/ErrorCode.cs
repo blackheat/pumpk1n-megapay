@@ -8,6 +8,9 @@
         // NotModified Exception
         NotModifiedException = 1002,
         
+        // Pagination Data Exception
+        InvalidPaginationDataException = 1003,
+        
         // Accounts
         InvalidCredentialsException = 2000,
         UserNotActivatedException = 2001,

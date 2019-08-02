@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Suppliers;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
@@ -107,19 +108,24 @@ namespace pumpk1n_backend.Services.Suppliers
             return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
         }
 
-        public async Task<CustomList<SupplierReturnModel>> GetSuppliers(int startAt, int count, string name = "")
+        public async Task<CustomList<SupplierReturnModel>> GetSuppliers(int page, int count, string name = "")
         {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+            
+            var startAt = (page - 1) * count;
             var suppliers = await _context.Suppliers
                 .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).Skip(startAt)
                 .Take(count).ToListAsync();
             
             var totalCount = await _context.Suppliers
                 .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).CountAsync();
+            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
             
             var supplierReturnModels = _mapper.Map<List<Supplier>, CustomList<SupplierReturnModel>>(suppliers);
-            supplierReturnModels.StartAt = startAt;
-            supplierReturnModels.EndAt = startAt + suppliers.Count;
-            supplierReturnModels.Total = totalCount;
+            supplierReturnModels.CurrentPage = page;
+            supplierReturnModels.TotalPages = totalPages;
+            supplierReturnModels.TotalItems = totalCount;
             supplierReturnModels.IsListPartial = true;
 
             return supplierReturnModels;

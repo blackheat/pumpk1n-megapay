@@ -105,8 +105,9 @@ namespace pumpk1n_backend.Services.Accounts
             return userInformationModel;
         }
 
-        public async Task<CustomList<UserInformationModel>> GetUsers(int startAt, int count, string name = "")
+        public async Task<CustomList<UserInformationModel>> GetUsers(int page, int count, string name = "")
         {
+            var startAt = (page - 1) * count;
             var users = await _context.Users
                 .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
@@ -114,11 +115,13 @@ namespace pumpk1n_backend.Services.Accounts
             var totalCount = await _context.Users
                 .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).CountAsync();
+
+            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
             
             var userReturnModels = _mapper.Map<List<User>, CustomList<UserInformationModel>>(users);
-            userReturnModels.StartAt = startAt;
-            userReturnModels.EndAt = startAt + users.Count;
-            userReturnModels.Total = totalCount;
+            userReturnModels.CurrentPage = page;
+            userReturnModels.TotalPages = totalPages;
+            userReturnModels.TotalItems = totalCount;
             userReturnModels.IsListPartial = true;
 
             return userReturnModels;
