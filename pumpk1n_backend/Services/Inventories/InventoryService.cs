@@ -17,6 +17,8 @@ namespace pumpk1n_backend.Services.Inventories
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
+        private const string DefaultImageUrl =
+            "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c05962484.png";
 
         public InventoryService(DatabaseContext context, IMapper mapper)
         {
@@ -54,12 +56,25 @@ namespace pumpk1n_backend.Services.Inventories
             var startAt = (page - 1) * count;
             
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
-                .OrderByDescending(i => i.ImportedDate).ToListAsync();
+                .OrderByDescending(i => i.ImportedDate)
+                .Include(i => i.Customer)
+                .Include(i => i.Supplier)
+                .Include(i => i.Product)
+                .ToListAsync();
 
             var totalCount = await _context.ProductInventories.OrderByDescending(i => i.ImportedDate).CountAsync();
             var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
             
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);
+            foreach (var itemReturnModel in itemReturnModels)
+            {
+                if (itemReturnModel.ProductDetails == null) 
+                    continue;
+
+                if (string.IsNullOrEmpty(itemReturnModel.ProductDetails.Image) ||
+                    string.IsNullOrWhiteSpace(itemReturnModel.ProductDetails.Image))
+                    itemReturnModel.ProductDetails.Image = DefaultImageUrl;
+            }
             itemReturnModels.CurrentPage = page;
             itemReturnModels.TotalItems = totalCount;
             itemReturnModels.IsListPartial = true;
