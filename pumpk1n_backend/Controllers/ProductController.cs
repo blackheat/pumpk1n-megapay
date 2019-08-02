@@ -88,7 +88,7 @@ namespace pumpk1n_backend.Controllers
         [HttpGet]
         [Authorize]
         [Route("")]
-        public async Task<IActionResult> GetProducts(ProductSearchFilterModel filterModel, int count = 10, int page = 1)
+        public async Task<IActionResult> GetProducts([FromQuery] ProductSearchFilterModel filterModel, int count = 10, int page = 1)
         {
             var result = await _productService.GetProducts(page, count, filterModel);
             return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());

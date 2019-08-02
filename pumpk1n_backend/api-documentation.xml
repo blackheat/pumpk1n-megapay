@@ -100,13 +100,13 @@
             <param name="id">Product ID</param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.ProductController.GetProducts(System.Int32,System.Int32,System.String)">
+        <member name="M:pumpk1n_backend.Controllers.ProductController.GetProducts(pumpk1n_backend.Models.TransferModels.Products.ProductSearchFilterModel,System.Int32,System.Int32)">
             <summary>
             Get products
             </summary>
-            <param name="page">Page number</param>
+            <param name="filterModel">Product filter model</param>
             <param name="count">Count</param>
-            <param name="name">Search by name</param>
+            <param name="page">Page number</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsDeprecated(System.Int64)">
