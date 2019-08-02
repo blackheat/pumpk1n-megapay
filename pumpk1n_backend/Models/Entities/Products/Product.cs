@@ -15,6 +15,7 @@ namespace pumpk1n_backend.Models.Entities.Products
         public string LongDescription { get; set; }
         public string Image { get; set; }
         public float Price { get; set; }
+        public bool OutOfStock { get; set; }
         public DateTime AddedDate { get; set; }
         
         // Deprecation

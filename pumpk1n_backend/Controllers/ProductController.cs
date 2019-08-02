@@ -81,17 +81,17 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// Get products
         /// </summary>
-        /// <param name="startAt">From Nth product</param>
+        /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
         /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize]
         [Route("")]
-        public async Task<IActionResult> GetProducts(int startAt = 0, int count = 10, string name = "")
+        public async Task<IActionResult> GetProducts(int page = 1, int count = 10, string name = "")
         {
-            var result = await _productService.GetProducts(startAt, count, name);
-            return ApiResponder.RespondSuccess(result);
+            var result = await _productService.GetProducts(page, count, name);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
 
         /// <summary>
@@ -119,6 +119,34 @@ namespace pumpk1n_backend.Controllers
         public async Task<IActionResult> UnmarkProductAsDeprecated(long id)
         {
             await _productService.ChangeProductDeprecatedStatus(id, false);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
+        
+        /// <summary>
+        /// [Internal] Change product stock status to out of stock
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/stock")]
+        public async Task<IActionResult> MarkProductAsOutOfStock(long id)
+        {
+            await _productService.ChangeProductStockStatus(id, true);
+            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
+        }
+
+        /// <summary>
+        /// [Internal] Change product stock status to available
+        /// </summary>
+        /// <param name="id">Product ID</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/stock")]
+        public async Task<IActionResult> UnmarkProductAsOutOfStock(long id)
+        {
+            await _productService.ChangeProductStockStatus(id, false);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
     }

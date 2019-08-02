@@ -23,16 +23,16 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// Get inventory list
         /// </summary>
-        /// <param name="startAt">From Nth product</param>
+        /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
         /// <returns></returns>
         [HttpGet]
         [Route("")]
         [Authorize(Roles = "InternalUser")]
-        public async Task<IActionResult> GetInventory(int startAt, int count)
+        public async Task<IActionResult> GetInventory(int page = 1, int count = 10)
         {
-            var result = await _inventoryService.GetInventory(startAt, count);
-            return ApiResponder.RespondSuccess(result);
+            var result = await _inventoryService.GetInventory(page, count);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
 
         /// <summary>

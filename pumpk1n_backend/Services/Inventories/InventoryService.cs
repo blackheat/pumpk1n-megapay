@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Products;
@@ -45,11 +46,25 @@ namespace pumpk1n_backend.Services.Inventories
             }
         }
 
-        public async Task<CustomList<InventoryReturnModel>> GetInventory(int startAt, int count)
+        public async Task<CustomList<InventoryReturnModel>> GetInventory(int page, int count)
         {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+
+            var startAt = (page - 1) * count;
+            
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
                 .OrderByDescending(i => i.ImportedDate).ToListAsync();
+
+            var totalCount = await _context.ProductInventories.OrderByDescending(i => i.ImportedDate).CountAsync();
+            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);
+            itemReturnModels.CurrentPage = page;
+            itemReturnModels.TotalItems = totalCount;
+            itemReturnModels.IsListPartial = true;
+            itemReturnModels.TotalPages = totalPages;
+            
             return itemReturnModels;
         }
     }

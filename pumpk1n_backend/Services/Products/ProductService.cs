@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Products;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
@@ -113,8 +114,13 @@ namespace pumpk1n_backend.Services.Products
             return _mapper.Map<Product, ProductReturnModel>(product);
         }
 
-        public async Task<CustomList<ProductReturnModel>> GetProducts(int startAt, int count, string name = "")
+        public async Task<CustomList<ProductReturnModel>> GetProducts(int page, int count, string name = "")
         {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+
+            var startAt = (page - 1) * count;
+            
             var products = await _context.Products
                 .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(p => p.AddedDate)
@@ -125,10 +131,15 @@ namespace pumpk1n_backend.Services.Products
                 if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
                     product.Image = DefaultImageUrl;
             
+            var totalCount = await _context.Products
+                .Where(p => p.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(p => p.AddedDate).CountAsync();
+            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            
             var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
-            productReturnModels.StartAt = startAt;
-            productReturnModels.EndAt = startAt + products.Count;
-            productReturnModels.Total = products.Count;
+            productReturnModels.TotalItems = totalCount;
+            productReturnModels.TotalPages = totalPages;
+            productReturnModels.CurrentPage = page;
             productReturnModels.IsListPartial = true;
 
             return productReturnModels;
@@ -145,6 +156,29 @@ namespace pumpk1n_backend.Services.Products
                         throw new ProductNotFoundException();
 
                     product.Deprecated = isDeprecated;
+
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+        
+        public async Task ChangeProductStockStatus(long productId, bool isOutOfStock)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+                    if (product == null)
+                        throw new ProductNotFoundException();
+
+                    product.OutOfStock = isOutOfStock;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();

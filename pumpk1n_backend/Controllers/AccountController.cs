@@ -80,17 +80,17 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// [Internal] Get users information
         /// </summary>
-        /// <param name="startAt">From Nth user</param>
+        /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
         /// <param name="name">Search by full name</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
         [Route("")]
-        public async Task<IActionResult> GetUsers(int startAt, int count, string name = "")
+        public async Task<IActionResult> GetUsers(int page = 1, int count = 10, string name = "")
         {
-            var result = await _accountService.GetUsers(startAt, count, name);
-            return ApiResponder.RespondSuccess(result);
+            var result = await _accountService.GetUsers(page, count, name);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
     }
 }

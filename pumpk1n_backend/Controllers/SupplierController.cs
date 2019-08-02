@@ -81,17 +81,17 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// [Internal] Get suppliers
         /// </summary>
-        /// <param name="startAt">From Nth supplier</param>
+        /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
         /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
         [Route("")]
-        public async Task<IActionResult> GetSuppliers(int startAt = 0, int count = 10, string name = "")
+        public async Task<IActionResult> GetSuppliers(int page = 1, int count = 10, string name = "")
         {
-            var result = await _supplierService.GetSuppliers(startAt, count, name);
-            return ApiResponder.RespondSuccess(result);
+            var result = await _supplierService.GetSuppliers(page, count, name);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
     }
 }

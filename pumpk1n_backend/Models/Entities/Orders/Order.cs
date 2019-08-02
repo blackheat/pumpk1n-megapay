@@ -16,7 +16,10 @@ namespace pumpk1n_backend.Models.Entities.Orders
         public string Address { get; set; }
         public string Notes { get; set; }
         public DateTime AddedDate { get; set; }
-        
+        public DateTime CheckedOutDate { get; set; }
+        public DateTime ConfirmedDate { get; set; }
+        public DateTime CancelledDate { get; set; }
+
         [ForeignKey("CustomerId")]
         public virtual User Customer { get; set; }
         

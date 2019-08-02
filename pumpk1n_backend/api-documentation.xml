@@ -35,7 +35,7 @@
             <summary>
             [Internal] Get users information
             </summary>
-            <param name="startAt">From Nth user</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by full name</param>
             <returns></returns>
@@ -60,7 +60,7 @@
             <summary>
             Get inventory list
             </summary>
-            <param name="startAt">From Nth product</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <returns></returns>
         </member>
@@ -104,7 +104,7 @@
             <summary>
             Get products
             </summary>
-            <param name="startAt">From Nth product</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by name</param>
             <returns></returns>
@@ -119,6 +119,20 @@
         <member name="M:pumpk1n_backend.Controllers.ProductController.UnmarkProductAsDeprecated(System.Int64)">
             <summary>
             [Internal] Mark Product as NOT Deprecated
+            </summary>
+            <param name="id">Product ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsOutOfStock(System.Int64)">
+            <summary>
+            [Internal] Change product stock status to out of stock
+            </summary>
+            <param name="id">Product ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.ProductController.UnmarkProductAsOutOfStock(System.Int64)">
+            <summary>
+            [Internal] Change product stock status to available
             </summary>
             <param name="id">Product ID</param>
             <returns></returns>
@@ -156,7 +170,7 @@
             <summary>
             [Internal] Get suppliers
             </summary>
-            <param name="startAt">From Nth supplier</param>
+            <param name="page">Page number</param>
             <param name="count">Count</param>
             <param name="name">Search by name</param>
             <returns></returns>
