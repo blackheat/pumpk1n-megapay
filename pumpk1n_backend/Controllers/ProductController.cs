@@ -127,7 +127,7 @@ namespace pumpk1n_backend.Controllers
         /// </summary>
         /// <param name="id">Product ID</param>
         /// <returns></returns>
-        [HttpPut]
+        [HttpDelete]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/stock")]
         public async Task<IActionResult> MarkProductAsOutOfStock(long id)
@@ -141,7 +141,7 @@ namespace pumpk1n_backend.Controllers
         /// </summary>
         /// <param name="id">Product ID</param>
         /// <returns></returns>
-        [HttpDelete]
+        [HttpPut]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/stock")]
         public async Task<IActionResult> UnmarkProductAsOutOfStock(long id)
