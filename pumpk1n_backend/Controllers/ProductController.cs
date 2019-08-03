@@ -103,7 +103,7 @@ namespace pumpk1n_backend.Controllers
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/deprecation/{status}")]
-        public async Task<IActionResult> MarkProductAsDeprecated(long id, bool status)
+        public async Task<IActionResult> ChangeProductDeprecationStatus(long id, bool status)
         {
             await _productService.ChangeProductDeprecatedStatus(id, status);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
@@ -118,7 +118,7 @@ namespace pumpk1n_backend.Controllers
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
         [Route("{id}/stock/{status}")]
-        public async Task<IActionResult> MarkProductAsOutOfStock(long id, bool status)
+        public async Task<IActionResult> ChangeProductStockStatus(long id, bool status)
         {
             await _productService.ChangeProductStockStatus(id, status);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
