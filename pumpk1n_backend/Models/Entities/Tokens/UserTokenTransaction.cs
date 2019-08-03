@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using pumpk1n_backend.Enumerations;
@@ -12,9 +13,12 @@ namespace pumpk1n_backend.Models.Entities.Tokens
         public long Id { get; set; }
         public long CustomerId { get; set; }
         public float Amount { get; set; }
+        public string Notes { get; set; }
         public TokenTransactionType TransactionType { get; set; }
         
         [ForeignKey("CustomerId")]
         public virtual User Customer { get; set; }
+        
+        public virtual ICollection<TokenBilling> TokenBillings { get; set; }
     }
 }
