@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.Entities.Accounts;
 
@@ -12,6 +13,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Accounts
         public string Email { get; set; }
         public DateTime RegisteredDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public UserType Role { get; set; }
 
         public void CreateMappings(IMapperConfigurationExpression configuration)
         {
@@ -19,6 +21,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Accounts
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.UserType))
                 .ForMember(dest => dest.RegisteredDate, opt => opt.MapFrom(src => src.RegisteredDate))
                 .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => src.UpdatedDate));
         }
