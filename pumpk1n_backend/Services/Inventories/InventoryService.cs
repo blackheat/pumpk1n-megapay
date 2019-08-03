@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using pumpk1n_backend.Exceptions.Inventories;
 using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
@@ -81,6 +82,82 @@ namespace pumpk1n_backend.Services.Inventories
             itemReturnModels.TotalPages = totalPages;
             
             return itemReturnModels;
+        }
+
+        public async Task<InventoryReturnModel> GetInventoryItem(long id)
+        {
+            var inventoryItem = await _context.ProductInventories
+                .Include(pi => pi.Product)
+                .Include(pi => pi.Customer)
+                .Include(pi => pi.Supplier)
+                .FirstOrDefaultAsync(pi => pi.Id == id);
+            
+            if (inventoryItem == null)
+                throw new InventoryItemNotFoundException();
+
+            var inventoryItemReturnModel = _mapper.Map<ProductInventory, InventoryReturnModel>(inventoryItem);
+            if (inventoryItemReturnModel.ProductDetails == null) 
+                return inventoryItemReturnModel;
+            
+            if (string.IsNullOrEmpty(inventoryItemReturnModel.ProductDetails.Image) ||
+                string.IsNullOrWhiteSpace(inventoryItemReturnModel.ProductDetails.Image))
+                inventoryItemReturnModel.ProductDetails.Image = DefaultImageUrl;
+
+            return inventoryItemReturnModel;
+        }
+
+        public async Task<List<InventoryReturnModel>> ExportProducts(InventoryExportModel model)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var inventoryItems = await _context.ProductInventories
+                        .Include(pi => pi.Customer)
+                        .Include(pi => pi.Product)
+                        .Include(pi => pi.Supplier)
+                        .Where(pi => model.InventoryItems.Contains(pi.Id)).ToListAsync();
+
+                    var inventoryItemsIds = inventoryItems.Select(ii => ii.Id).ToList();
+                    foreach (var inventoryItemExportId in inventoryItemsIds)
+                    {
+                        if (!inventoryItemsIds.Contains(inventoryItemExportId))
+                            throw new InventoryItemNotFoundException();
+                    }
+
+                    foreach (var inventoryItem in inventoryItems)
+                    {
+                        if (inventoryItem.CustomerId != null || inventoryItem.ExportedDate >= inventoryItem.ImportedDate) 
+                            throw new InventoryItemAlreadyExportedException();
+                        
+                        inventoryItem.CustomerId = model.CustomerId;
+                        inventoryItem.ExportedDate = model.ExportedDate;
+                    }
+                    
+                    _context.ProductInventories.UpdateRange(inventoryItems);
+                    await _context.SaveChangesAsync();
+                    
+                    transaction.Commit();
+
+                    var inventoryItemReturnModels =
+                        _mapper.Map<List<ProductInventory>, List<InventoryReturnModel>>(inventoryItems);
+                    foreach (var inventoryItemReturnModel in inventoryItemReturnModels)
+                    {
+                        if (inventoryItemReturnModel.ProductDetails == null) 
+                            continue;
+                        if (string.IsNullOrEmpty(inventoryItemReturnModel.ProductDetails.Image) ||
+                            string.IsNullOrWhiteSpace(inventoryItemReturnModel.ProductDetails.Image))
+                            inventoryItemReturnModel.ProductDetails.Image = DefaultImageUrl;
+                    }
+
+                    return inventoryItemReturnModels;
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }

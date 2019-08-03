@@ -64,9 +64,23 @@
             <param name="count">Count</param>
             <returns></returns>
         </member>
+        <member name="M:pumpk1n_backend.Controllers.InventoryController.GetInventoryItem(System.Int64)">
+            <summary>
+            Get inventory item details
+            </summary>
+            <param name="id">Item ID</param>
+            <returns></returns>
+        </member>
         <member name="M:pumpk1n_backend.Controllers.InventoryController.ImportProduct(pumpk1n_backend.Models.TransferModels.Inventories.InventoryImportModel)">
             <summary>
             Import a product
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.InventoryController.ExportProducts(pumpk1n_backend.Models.TransferModels.Inventories.InventoryExportModel)">
+            <summary>
+            Export one or more products
             </summary>
             <param name="model"></param>
             <returns></returns>

@@ -20,6 +20,10 @@
         ProductNotFoundException = 3001,
         
         // Suppliers
-        SupplierNotFoundException = 4001
+        SupplierNotFoundException = 4001,
+        
+        // Inventories
+        InventoryItemAlreadyExportedException = 5001,
+        InventoryItemNotFoundException = 5002
     }
 }
