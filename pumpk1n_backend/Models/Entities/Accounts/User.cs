@@ -17,6 +17,7 @@ namespace pumpk1n_backend.Models.Entities.Accounts
         public string FullName { get; set; }
         public string Nonce { get; set; }
         public string HashedPassword { get; set; }
+        public float Balance { get; set; } = (float) 0.0;
         
         public DateTime RegisteredDate { get; set; }
         public DateTime UpdatedDate { get; set; }

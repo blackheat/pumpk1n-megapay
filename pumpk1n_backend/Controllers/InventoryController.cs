@@ -21,7 +21,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Get inventory list
+        /// [Internal] Get inventory list
         /// </summary>
         /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
@@ -36,16 +36,44 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Import a product
+        /// [Internal] Get inventory item details
+        /// </summary>
+        /// <param name="id">Item ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> GetInventoryItem(long id)
+        {
+            var result = await _inventoryService.GetInventoryItem(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Import a product
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("")]
+        [Route("imported")]
         [Authorize(Roles = "InternalUser")]
-        public async Task<IActionResult> ImportProduct(InventoryImportModel model)
+        public async Task<IActionResult> ImportProduct([FromBody] InventoryImportModel model)
         {
             var result = await _inventoryService.ImportProduct(model);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Export one or more products
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("exported")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> ExportProducts([FromBody] InventoryExportModel model)
+        {
+            var result = await _inventoryService.ExportProducts(model);
             return ApiResponder.RespondSuccess(result);
         }
     }

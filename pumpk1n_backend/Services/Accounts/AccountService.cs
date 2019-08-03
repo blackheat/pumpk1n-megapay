@@ -105,15 +105,17 @@ namespace pumpk1n_backend.Services.Accounts
             return userInformationModel;
         }
 
-        public async Task<CustomList<UserInformationModel>> GetUsers(int page, int count, string name = "")
+        public async Task<CustomList<UserInformationModel>> GetUsers(int page, int count, UserAccountFilterModel filterModel)
         {
             var startAt = (page - 1) * count;
             var users = await _context.Users
-                .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(u => u.FullName.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
+                            u.Email.Contains(filterModel.Email, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
             
             var totalCount = await _context.Users
-                .Where(u => u.FullName.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .Where(u => u.FullName.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
+                            u.Email.Contains(filterModel.Email, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).CountAsync();
 
             var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);

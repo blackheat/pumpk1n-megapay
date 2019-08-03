@@ -184,6 +184,7 @@ namespace pumpk1n_backend.Services.Products
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
+                    transaction.Commit();
                 }
                 catch (Exception)
                 {

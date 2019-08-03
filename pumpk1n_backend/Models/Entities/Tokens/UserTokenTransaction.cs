@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,7 +16,9 @@ namespace pumpk1n_backend.Models.Entities.Tokens
         public float Amount { get; set; }
         public string Notes { get; set; }
         public TokenTransactionType TransactionType { get; set; }
-        
+        public DateTime AddedDate { get; set; }
+        public DateTime ConfirmedDate { get; set; }
+
         [ForeignKey("CustomerId")]
         public virtual User Customer { get; set; }
         
