@@ -147,7 +147,7 @@ namespace pumpk1n_backend.Services.Products
             return productReturnModels;
         }
 
-        public async Task ChangeProductDeprecatedStatus(long productId, bool isDeprecated)
+        public async Task ChangeProductDeprecatedStatus(long productId, bool status)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -157,7 +157,7 @@ namespace pumpk1n_backend.Services.Products
                     if (product == null)
                         throw new ProductNotFoundException();
 
-                    product.Deprecated = isDeprecated;
+                    product.Deprecated = status;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
@@ -170,7 +170,7 @@ namespace pumpk1n_backend.Services.Products
             }
         }
         
-        public async Task ChangeProductStockStatus(long productId, bool isOutOfStock)
+        public async Task ChangeProductStockStatus(long productId, bool status)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -180,7 +180,7 @@ namespace pumpk1n_backend.Services.Products
                     if (product == null)
                         throw new ProductNotFoundException();
 
-                    product.OutOfStock = isOutOfStock;
+                    product.OutOfStock = !status;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
