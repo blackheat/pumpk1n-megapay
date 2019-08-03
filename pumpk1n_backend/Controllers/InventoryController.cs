@@ -21,7 +21,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Get inventory list
+        /// [Internal] Get inventory list
         /// </summary>
         /// <param name="page">Page number</param>
         /// <param name="count">Count</param>
@@ -36,7 +36,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Get inventory item details
+        /// [Internal] Get inventory item details
         /// </summary>
         /// <param name="id">Item ID</param>
         /// <returns></returns>
@@ -50,7 +50,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Import a product
+        /// [Internal] Import a product
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -64,7 +64,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Export one or more products
+        /// [Internal] Export one or more products
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>

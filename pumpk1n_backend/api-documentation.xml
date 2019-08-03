@@ -31,13 +31,13 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.AccountController.GetUsers(System.Int32,System.Int32,System.String)">
+        <member name="M:pumpk1n_backend.Controllers.AccountController.GetUsers(pumpk1n_backend.Models.TransferModels.Accounts.UserAccountFilterModel,System.Int32,System.Int32)">
             <summary>
             [Internal] Get users information
             </summary>
-            <param name="page">Page number</param>
+            <param name="filterModel"></param>
             <param name="count">Count</param>
-            <param name="name">Search by full name</param>
+            <param name="page">Page number</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.InternalController.RegisterInternalAccount(pumpk1n_backend.Models.TransferModels.Accounts.UserRegisterModel,System.String)">
@@ -123,32 +123,20 @@
             <param name="page">Page number</param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsDeprecated(System.Int64)">
+        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsDeprecated(System.Int64,System.Boolean)">
             <summary>
-            [Internal] Mark Product As Deprecated
+            [Internal] Change product deprecation status
             </summary>
             <param name="id">Product ID</param>
+            <param name="status">Deprecation status</param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.ProductController.UnmarkProductAsDeprecated(System.Int64)">
+        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsOutOfStock(System.Int64,System.Boolean)">
             <summary>
-            [Internal] Mark Product as NOT Deprecated
+            [Internal] Change product stock status
             </summary>
             <param name="id">Product ID</param>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.ProductController.MarkProductAsOutOfStock(System.Int64)">
-            <summary>
-            [Internal] Change product stock status to out of stock
-            </summary>
-            <param name="id">Product ID</param>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.ProductController.UnmarkProductAsOutOfStock(System.Int64)">
-            <summary>
-            [Internal] Change product stock status to available
-            </summary>
-            <param name="id">Product ID</param>
+            <param name="status">Stock status</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.SupplierController.InsertSupplier(pumpk1n_backend.Models.TransferModels.Suppliers.SupplierInsertModel)">

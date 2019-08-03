@@ -95,58 +95,32 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// [Internal] Mark Product As Deprecated
+        /// [Internal] Change product deprecation status
         /// </summary>
         /// <param name="id">Product ID</param>
+        /// <param name="status">Deprecation status</param>
         /// <returns></returns>
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
-        [Route("{id}/deprecation")]
-        public async Task<IActionResult> MarkProductAsDeprecated(long id)
+        [Route("{id}/deprecation/{status}")]
+        public async Task<IActionResult> MarkProductAsDeprecated(long id, bool status)
         {
-            await _productService.ChangeProductDeprecatedStatus(id, true);
+            await _productService.ChangeProductDeprecatedStatus(id, status);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
 
         /// <summary>
-        /// [Internal] Mark Product as NOT Deprecated
+        /// [Internal] Change product stock status
         /// </summary>
         /// <param name="id">Product ID</param>
-        /// <returns></returns>
-        [HttpDelete]
-        [Authorize(Roles = "InternalUser")]
-        [Route("{id}/deprecation")]
-        public async Task<IActionResult> UnmarkProductAsDeprecated(long id)
-        {
-            await _productService.ChangeProductDeprecatedStatus(id, false);
-            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
-        }
-        
-        /// <summary>
-        /// [Internal] Change product stock status to out of stock
-        /// </summary>
-        /// <param name="id">Product ID</param>
-        /// <returns></returns>
-        [HttpDelete]
-        [Authorize(Roles = "InternalUser")]
-        [Route("{id}/stock")]
-        public async Task<IActionResult> MarkProductAsOutOfStock(long id)
-        {
-            await _productService.ChangeProductStockStatus(id, true);
-            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
-        }
-
-        /// <summary>
-        /// [Internal] Change product stock status to available
-        /// </summary>
-        /// <param name="id">Product ID</param>
+        /// <param name="status">Stock status</param>
         /// <returns></returns>
         [HttpPut]
         [Authorize(Roles = "InternalUser")]
-        [Route("{id}/stock")]
-        public async Task<IActionResult> UnmarkProductAsOutOfStock(long id)
+        [Route("{id}/stock/{status}")]
+        public async Task<IActionResult> MarkProductAsOutOfStock(long id, bool status)
         {
-            await _productService.ChangeProductStockStatus(id, false);
+            await _productService.ChangeProductStockStatus(id, status);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
     }
