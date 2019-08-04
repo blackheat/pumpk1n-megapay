@@ -50,7 +50,7 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// [Internal] Import a product
+        /// [Internal] Import one or more products
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
