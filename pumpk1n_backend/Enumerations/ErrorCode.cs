@@ -24,6 +24,7 @@
         
         // Inventories
         InventoryItemAlreadyExportedException = 5001,
-        InventoryItemNotFoundException = 5002
+        InventoryItemNotFoundException = 5002,
+        InventoryItemWithSameUniqueIdentifierExistsException = 5003
     }
 }

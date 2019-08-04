@@ -57,9 +57,9 @@ namespace pumpk1n_backend.Controllers
         [HttpPost]
         [Route("imported")]
         [Authorize(Roles = "InternalUser")]
-        public async Task<IActionResult> ImportProduct([FromBody] InventoryImportModel model)
+        public async Task<IActionResult> ImportProducts([FromBody] InventoryImportModel model)
         {
-            var result = await _inventoryService.ImportProduct(model);
+            var result = await _inventoryService.ImportProducts(model);
             return ApiResponder.RespondSuccess(result);
         }
 
