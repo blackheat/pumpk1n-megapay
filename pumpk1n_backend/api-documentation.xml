@@ -73,7 +73,7 @@
         </member>
         <member name="M:pumpk1n_backend.Controllers.InventoryController.ImportProducts(pumpk1n_backend.Models.TransferModels.Inventories.InventoryImportModel)">
             <summary>
-            [Internal] Import a product
+            [Internal] Import one or more products
             </summary>
             <param name="model"></param>
             <returns></returns>
