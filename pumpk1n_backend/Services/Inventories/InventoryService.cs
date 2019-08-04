@@ -6,6 +6,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Exceptions.Inventories;
 using pumpk1n_backend.Exceptions.Others;
+using pumpk1n_backend.Exceptions.Products;
+using pumpk1n_backend.Exceptions.Suppliers;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Products;
@@ -27,19 +29,69 @@ namespace pumpk1n_backend.Services.Inventories
             _mapper = mapper;
         }
 
-        public async Task<InventoryReturnModel> ImportProduct(InventoryImportModel model)
+        public async Task<List<InventoryReturnModel>> ImportProducts(InventoryImportModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var item = _mapper.Map<InventoryImportModel, ProductInventory>(model);
+                    var productUniqueIdentifiers =
+                        model.InventoryItems.Select(ii => ii.ProductUniqueIdentifier).ToList();
+                    if (productUniqueIdentifiers.Distinct().Count() != productUniqueIdentifiers.Count)
+                        throw new InventoryItemWithSameUniqueIdentifierExistsException();
 
-                    _context.ProductInventories.Add(item);
+                    var inventoryItems = new List<ProductInventory>();
+                    foreach (var inventoryProductItemModel in model.InventoryItems)
+                    {
+                        // Check existing SKU
+                        var inventoryProductItem = await _context.ProductInventories.FirstOrDefaultAsync(pi =>
+                            string.Equals(pi.ProductUniqueIdentifier, inventoryProductItemModel.ProductUniqueIdentifier,
+                                StringComparison.InvariantCultureIgnoreCase));
+                        if  (inventoryProductItem != null)
+                            throw new InventoryItemWithSameUniqueIdentifierExistsException();
+                        
+                        // Check for existing supplier
+                        var supplier =
+                            await _context.Suppliers.FirstOrDefaultAsync(s =>
+                                s.Id == inventoryProductItemModel.SupplierId);
+                        if (supplier == null)
+                            throw new SupplierNotFoundException();
+                        
+                        // Check for existing product
+                        var product =
+                            await _context.Products.FirstOrDefaultAsync(
+                                p => p.Id == inventoryProductItemModel.ProductId);
+                        if (product == null)
+                            throw new ProductNotFoundException();
+                        
+                        // Add to inventory
+                        var inventoryItem =
+                            _mapper.Map<InventoryProductImportModel, ProductInventory>(inventoryProductItemModel);
+                        inventoryItem.ImportedDate = model.ImportedDate;
+                        inventoryItems.Add(inventoryItem);
+                    }
+                    
+                    _context.ProductInventories.AddRange(inventoryItems);
                     await _context.SaveChangesAsync();
                     transaction.Commit();
 
-                    return _mapper.Map<ProductInventory, InventoryReturnModel>(item);
+                    var inventoryItemsIds = inventoryItems.Select(ii => ii.Id).ToList();
+                    var populatedInventoryItems =
+                        await _context.ProductInventories.Where(pi => inventoryItemsIds.Contains(pi.Id)).ToListAsync();
+                    var populatedInventoryItemsModels =
+                        _mapper.Map<List<ProductInventory>, List<InventoryReturnModel>>(populatedInventoryItems);
+                    
+                    foreach (var populatedInventoryItemsModel in populatedInventoryItemsModels)
+                    {
+                        if (populatedInventoryItemsModel.ProductDetails == null) 
+                            continue;
+
+                        if (string.IsNullOrEmpty(populatedInventoryItemsModel.ProductDetails.Image) ||
+                            string.IsNullOrWhiteSpace(populatedInventoryItemsModel.ProductDetails.Image))
+                            populatedInventoryItemsModel.ProductDetails.Image = DefaultImageUrl;
+                    }
+
+                    return populatedInventoryItemsModels;
                 }
                 catch (Exception)
                 {
@@ -118,7 +170,7 @@ namespace pumpk1n_backend.Services.Inventories
                         .Include(pi => pi.Supplier)
                         .Where(pi => model.InventoryItems.Contains(pi.Id)).ToListAsync();
 
-                    var inventoryItemsIds = inventoryItems.Select(ii => ii.Id).ToList();
+                    var inventoryItemsIds = inventoryItems.Select(ii => ii.Id).Distinct().ToList();
                     foreach (var inventoryItemExportId in inventoryItemsIds)
                     {
                         if (!inventoryItemsIds.Contains(inventoryItemExportId))
