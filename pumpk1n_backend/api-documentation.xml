@@ -56,12 +56,13 @@
             <param name="roleId">User role</param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.InventoryController.GetInventory(System.Int32,System.Int32)">
+        <member name="M:pumpk1n_backend.Controllers.InventoryController.GetInventory(pumpk1n_backend.Models.TransferModels.Inventories.InventoryFilterModel,System.Int32,System.Int32)">
             <summary>
             [Internal] Get inventory list
             </summary>
-            <param name="page">Page number</param>
+            <param name="filterModel"></param>
             <param name="count">Count</param>
+            <param name="page">Page number</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.InventoryController.GetInventoryItem(System.Int64)">

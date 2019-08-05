@@ -101,7 +101,7 @@ namespace pumpk1n_backend.Services.Inventories
             }
         }
 
-        public async Task<CustomList<InventoryReturnModel>> GetInventory(int page, int count)
+        public async Task<CustomList<InventoryReturnModel>> GetInventory(int page, int count, InventoryFilterModel filterModel)
         {
             if (page <= 0 || count <= 0)
                 throw new InvalidPaginationDataException();
@@ -110,12 +110,24 @@ namespace pumpk1n_backend.Services.Inventories
             
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
                 .OrderByDescending(i => i.ImportedDate)
+                .Where(i => filterModel.ProductId <= 0 || i.ProductId == filterModel.ProductId)
+                .Where(i => filterModel.SupplierId <= 0 || i.ProductId == filterModel.SupplierId)
+                .Where(i => i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product)
                 .ToListAsync();
 
-            var totalCount = await _context.ProductInventories.OrderByDescending(i => i.ImportedDate).CountAsync();
+            var totalCount = await _context.ProductInventories
+                .OrderByDescending(i => i.ImportedDate)
+                .Where(i => filterModel.ProductId <= 0 || i.ProductId == filterModel.ProductId)
+                .Where(i => filterModel.SupplierId <= 0 || i.ProductId == filterModel.SupplierId)
+                .Where(i => i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
+                .Include(i => i.Customer)
+                .Include(i => i.Supplier)
+                .Include(i => i.Product).CountAsync();
             var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
             
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);

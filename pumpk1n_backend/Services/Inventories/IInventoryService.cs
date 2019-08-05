@@ -9,7 +9,7 @@ namespace pumpk1n_backend.Services.Inventories
     public interface IInventoryService
     {
         Task<List<InventoryReturnModel>> ImportProducts(InventoryImportModel model);
-        Task<CustomList<InventoryReturnModel>> GetInventory(int page, int count);
+        Task<CustomList<InventoryReturnModel>> GetInventory(int page, int count, InventoryFilterModel filterModel);
         Task<List<InventoryReturnModel>> ExportProducts(InventoryExportModel model);
         Task<InventoryReturnModel> GetInventoryItem(long id);
     }
