@@ -107,13 +107,16 @@ namespace pumpk1n_backend.Services.Inventories
                 throw new InvalidPaginationDataException();
 
             var startAt = (page - 1) * count;
-            
+
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
                 .OrderByDescending(i => i.ImportedDate)
-                .Where(i => filterModel.ProductId <= 0 || i.ProductId == filterModel.ProductId)
-                .Where(i => filterModel.SupplierId <= 0 || i.ProductId == filterModel.SupplierId)
-                .Where(i => i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase))
-                .Where(i => i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => filterModel.ProductId <= 0 ||
+                            i.ProductId == filterModel.ProductId && filterModel.SupplierId <= 0 ||
+                            i.ProductId == filterModel.SupplierId &&
+                            i.Product.Name.Contains(filterModel.ProductName,
+                                StringComparison.InvariantCultureIgnoreCase) &&
+                            i.Supplier.Name.Contains(filterModel.SupplierName,
+                                StringComparison.InvariantCultureIgnoreCase))
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product)
@@ -121,10 +124,13 @@ namespace pumpk1n_backend.Services.Inventories
 
             var totalCount = await _context.ProductInventories
                 .OrderByDescending(i => i.ImportedDate)
-                .Where(i => filterModel.ProductId <= 0 || i.ProductId == filterModel.ProductId)
-                .Where(i => filterModel.SupplierId <= 0 || i.ProductId == filterModel.SupplierId)
-                .Where(i => i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase))
-                .Where(i => i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => filterModel.ProductId <= 0 ||
+                            i.ProductId == filterModel.ProductId && filterModel.SupplierId <= 0 ||
+                            i.ProductId == filterModel.SupplierId &&
+                            i.Product.Name.Contains(filterModel.ProductName,
+                                StringComparison.InvariantCultureIgnoreCase) &&
+                            i.Supplier.Name.Contains(filterModel.SupplierName,
+                                StringComparison.InvariantCultureIgnoreCase))
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product).CountAsync();
