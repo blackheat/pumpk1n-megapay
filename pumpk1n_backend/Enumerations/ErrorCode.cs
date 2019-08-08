@@ -15,6 +15,7 @@
         InvalidCredentialsException = 2000,
         UserNotActivatedException = 2001,
         UserAlreadyExistsException = 2002,
+        UserDoesNotExistException = 2003,
         
         // Products
         ProductNotFoundException = 3001,

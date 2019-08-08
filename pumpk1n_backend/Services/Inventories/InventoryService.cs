@@ -28,7 +28,7 @@ namespace pumpk1n_backend.Services.Inventories
             _context = context;
             _mapper = mapper;
         }
-
+        
         public async Task<List<InventoryReturnModel>> ImportProducts(InventoryImportModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -110,32 +110,30 @@ namespace pumpk1n_backend.Services.Inventories
 
             var items = await _context.ProductInventories.Skip(startAt).Take(count)
                 .OrderByDescending(i => i.ImportedDate)
-                .Where(i => filterModel.ProductId <= 0 ||
-                            i.ProductId == filterModel.ProductId && filterModel.SupplierId <= 0 ||
-                            i.ProductId == filterModel.SupplierId &&
-                            i.Product.Name.Contains(filterModel.ProductName,
-                                StringComparison.InvariantCultureIgnoreCase) &&
-                            i.Supplier.Name.Contains(filterModel.SupplierName,
-                                StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => filterModel.ProductId <= 0 ? i.ProductId > filterModel.ProductId :
+                    i.ProductId == filterModel.ProductId &&
+                    filterModel.SupplierId <= 0 ? i.SupplierId > filterModel.SupplierId :
+                    i.SupplierId == filterModel.SupplierId &&
+                    i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase) &&
+                    i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product)
                 .ToListAsync();
-
+            
             var totalCount = await _context.ProductInventories
                 .OrderByDescending(i => i.ImportedDate)
-                .Where(i => filterModel.ProductId <= 0 ||
-                            i.ProductId == filterModel.ProductId && filterModel.SupplierId <= 0 ||
-                            i.ProductId == filterModel.SupplierId &&
-                            i.Product.Name.Contains(filterModel.ProductName,
-                                StringComparison.InvariantCultureIgnoreCase) &&
-                            i.Supplier.Name.Contains(filterModel.SupplierName,
-                                StringComparison.InvariantCultureIgnoreCase))
+                .Where(i => filterModel.ProductId <= 0 ? i.ProductId > filterModel.ProductId :
+                    i.ProductId == filterModel.ProductId &&
+                    filterModel.SupplierId <= 0 ? i.SupplierId > filterModel.SupplierId :
+                    i.SupplierId == filterModel.SupplierId &&
+                    i.Product.Name.Contains(filterModel.ProductName, StringComparison.InvariantCultureIgnoreCase) &&
+                    i.Supplier.Name.Contains(filterModel.SupplierName, StringComparison.InvariantCultureIgnoreCase))
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product).CountAsync();
             var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
-            
+
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);
             foreach (var itemReturnModel in itemReturnModels)
             {
@@ -153,7 +151,7 @@ namespace pumpk1n_backend.Services.Inventories
             
             return itemReturnModels;
         }
-
+        
         public async Task<InventoryReturnModel> GetInventoryItem(long id)
         {
             var inventoryItem = await _context.ProductInventories
