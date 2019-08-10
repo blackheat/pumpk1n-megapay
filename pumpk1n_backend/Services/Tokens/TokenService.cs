@@ -122,7 +122,48 @@ namespace pumpk1n_backend.Services.Tokens
                 }
             }
         }
-        
+
+        public async Task ProcessCoinGateHook(CoinGateHookTransferModel model)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var tokenBilling = await _context.TokenBillings.Include(tb => tb.UserTokenTransaction)
+                        .FirstOrDefaultAsync(tb =>
+                            tb.UserTokenTransactionId == model.Id && tb.GatewayInvoiceSecret.Equals(model.Token,
+                                StringComparison.InvariantCultureIgnoreCase));
+                    
+                    if (tokenBilling == null)
+                        throw new TokenBillingNotFoundException();
+
+                    if (tokenBilling.UserTokenTransaction.ConfirmedDate >=
+                        tokenBilling.UserTokenTransaction.AddedDate && tokenBilling.UserTokenTransaction.CancelledDate <
+                        tokenBilling.UserTokenTransaction.AddedDate)
+                        return;
+                        
+                    tokenBilling.GatewayStatus = model.Status;
+                    tokenBilling.ReceivedAmount = model.ReceiveAmount;
+
+                    if (model.Status.Equals("paid", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        tokenBilling.InvoiceFullyPaid = true;
+                        tokenBilling.UserTokenTransaction.ConfirmedDate = DateTime.UtcNow;
+                        _context.UserTokenTransactions.Update(tokenBilling.UserTokenTransaction);
+                    }
+
+                    _context.TokenBillings.Update(tokenBilling);
+                    await _context.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
         public async Task<UserTokenTransactionModel> CreateTokenTransaction(long userId,
             TokenTransactionInsertModel model, TokenTransactionType transactionType)
         {
