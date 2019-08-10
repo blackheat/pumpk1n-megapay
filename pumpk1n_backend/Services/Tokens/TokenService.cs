@@ -130,6 +130,7 @@ namespace pumpk1n_backend.Services.Tokens
                 try
                 {
                     var tokenBilling = await _context.TokenBillings.Include(tb => tb.UserTokenTransaction)
+                        .ThenInclude(utt => utt.Customer)
                         .FirstOrDefaultAsync(tb =>
                             tb.UserTokenTransactionId == model.Id && tb.GatewayInvoiceSecret.Equals(model.Token,
                                 StringComparison.InvariantCultureIgnoreCase));
@@ -150,6 +151,9 @@ namespace pumpk1n_backend.Services.Tokens
                         tokenBilling.InvoiceFullyPaid = true;
                         tokenBilling.UserTokenTransaction.ConfirmedDate = DateTime.UtcNow;
                         _context.UserTokenTransactions.Update(tokenBilling.UserTokenTransaction);
+
+                        tokenBilling.UserTokenTransaction.Customer.Balance += tokenBilling.UserTokenTransaction.Amount;
+                        _context.Users.Update(tokenBilling.UserTokenTransaction.Customer);
                     }
 
                     _context.TokenBillings.Update(tokenBilling);
