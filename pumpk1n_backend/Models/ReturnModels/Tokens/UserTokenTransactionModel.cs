@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AutoMapper;
 using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Mappings;
@@ -11,6 +12,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
         public float Amount { get; set; }
         public string Notes { get; set; }
         public TokenTransactionType TransactionType { get; set; }
+        public List<CoinGateBillModel> PaymentInvoices { get; set; } = new List<CoinGateBillModel>();
         
         public void CreateMappings(IMapperConfigurationExpression configuration)
         {
@@ -18,7 +20,8 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-                .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType));
+                .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType))
+                .ForMember(dest => dest.PaymentInvoices, opt => opt.MapFrom(src => src.TokenBillings));
         }
     }
 }

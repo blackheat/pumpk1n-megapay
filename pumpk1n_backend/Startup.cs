@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using pumpk1n_backend.Helpers.Accounts;
+using pumpk1n_backend.Helpers.Tokens;
 using pumpk1n_backend.Mappings;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Services.Accounts;
@@ -108,13 +109,16 @@ namespace pumpk1n_backend
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IInternalService, InternalService>();
             services.AddScoped<IInventoryService, InventoryService>();
-            
+
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
+            services.AddScoped<ITokenHelper, TokenHelper>();
             
             // Load settings from appSettings
             var jwtSettingsSection = _configuration.GetSection("JwtSettings");
             services.Configure<JwtSettings>(jwtSettingsSection);
+            var coinGateSettingsSection = _configuration.GetSection("CoinGateSettings");
+            services.Configure<CoinGateSettings>(coinGateSettingsSection);
             
             // Configure JWT Settings
             var jwtSettings = jwtSettingsSection.Get<JwtSettings>();

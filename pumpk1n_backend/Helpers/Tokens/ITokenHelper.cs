@@ -1,0 +1,12 @@
+using System.Threading.Tasks;
+using pumpk1n_backend.Models.ReturnModels.Tokens;
+using pumpk1n_backend.Models.TransferModels.Tokens;
+
+namespace pumpk1n_backend.Helpers.Tokens
+{
+    public interface ITokenHelper
+    {
+        Task<CoinGateInvoiceReturnModel> GenerateInvoice(CoinGateInvoiceTransferModel model);
+        Task<CoinGateInvoiceReturnModel> GetInvoiceInfo(long orderId);
+    }
+}

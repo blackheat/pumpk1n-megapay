@@ -19,6 +19,7 @@ namespace pumpk1n_backend.Models.DatabaseContexts
         public DbSet<ProductInventory> ProductInventories { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<UserTokenTransaction> UserTokenTransactions { get; set; }
+        public DbSet<TokenBilling> TokenBillings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

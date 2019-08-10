@@ -26,6 +26,12 @@
         // Inventories
         InventoryItemAlreadyExportedException = 5001,
         InventoryItemNotFoundException = 5002,
-        InventoryItemWithSameUniqueIdentifierExistsException = 5003
+        InventoryItemWithSameUniqueIdentifierExistsException = 5003,
+        
+        // Tokens
+        TokenBillingNotFoundException = 6001,
+        TokenTransactionAlreadyCancelledException = 6002,
+        TokenTransactionAlreadyConfirmedException = 6003,
+        TokenTransactionNotFoundException = 6004
     }
 }
