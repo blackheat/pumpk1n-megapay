@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Exceptions.Accounts;
+using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Tokens;
 using pumpk1n_backend.Helpers.Tokens;
+using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Accounts;
 using pumpk1n_backend.Models.Entities.Tokens;
@@ -46,6 +49,11 @@ namespace pumpk1n_backend.Services.Tokens
             {
                 try
                 {
+                    var pendingTokenPurchaseRequestCount = await _context.UserTokenTransactions.Where(utt =>
+                        utt.ConfirmedDate < utt.AddedDate && utt.CancelledDate < utt.AddedDate).LongCountAsync();
+                    if (pendingTokenPurchaseRequestCount > 0)
+                        throw new PendingTokenTransactionExistsException();
+                    
                     var currentDate = DateTime.UtcNow;
                     var tokenTransaction = _mapper.Map<TokenTransactionInsertModel, UserTokenTransaction>(model);
                     tokenTransaction.CustomerId = userId;
@@ -65,12 +73,58 @@ namespace pumpk1n_backend.Services.Tokens
             }
         }
 
+        public async Task<UserTokenTransactionModel> CancelTokenPurchaseRequest(long requestId)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var tokenPurchaseRequest =
+                        await _context.UserTokenTransactions.FirstOrDefaultAsync(utt => utt.Id == requestId);
+                    tokenPurchaseRequest.CancelledDate = DateTime.UtcNow;
+                    _context.UserTokenTransactions.Update(tokenPurchaseRequest);
+                    await _context.SaveChangesAsync();
+                    transaction.Commit();
+                    return _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenPurchaseRequest);
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
+
         public async Task<UserTokenTransactionModel> GetTokenPurchaseRequest(long txId)
         {
             var tokenTransaction = await _context.UserTokenTransactions.Include(tt => tt.TokenBillings)
                 .FirstOrDefaultAsync(tt => tt.Id == txId);
             var tokenTransactionModel = _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
             return tokenTransactionModel;
+        }
+
+        public async Task<CustomList<UserTokenTransactionModel>> GetTokenPurchaseRequests(int count = 10, int page = 1)
+        {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+            
+            var startAt = (page - 1) * count;
+            var tokenPurchaseRequests = await _context.UserTokenTransactions
+                .OrderByDescending(tpr => tpr.AddedDate)
+                .Skip(startAt)
+                .Take(count).ToListAsync();
+            
+            var totalCount = await _context.UserTokenTransactions.CountAsync();
+            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+
+            var supplierReturnModels =
+                _mapper.Map<List<UserTokenTransaction>, CustomList<UserTokenTransactionModel>>(tokenPurchaseRequests);
+            supplierReturnModels.CurrentPage = page;
+            supplierReturnModels.TotalPages = totalPages;
+            supplierReturnModels.TotalItems = totalCount;
+            supplierReturnModels.IsListPartial = true;
+
+            return supplierReturnModels;
         }
 
         public async Task<CoinGateBillModel> CreateBilling(long txId)
@@ -83,13 +137,17 @@ namespace pumpk1n_backend.Services.Tokens
                         .Include(tt => tt.TokenBillings)
                         .FirstOrDefaultAsync(tt => tt.Id == txId);
 
-                    if (tokenTransaction.TokenBillings.Where(tb => tb.InvoiceFullyPaid).ToList().Count > 0 &&
+                    if (tokenTransaction.TokenBillings.Where(tb => tb.InvoiceFullyPaid).LongCount() > 0 &&
                         tokenTransaction.ConfirmedDate >= tokenTransaction.AddedDate)
                         throw new TokenTransactionAlreadyConfirmedException();
                     
+                    if (tokenTransaction.TokenBillings.Where(tb => tb.CancelledDate < tb.CreatedDate && 
+                                                                   !tb.InvoiceFullyPaid).LongCount() > 0)
+                        throw new PendingTokenBillingExistsException();
+
                     if (tokenTransaction.CancelledDate >= tokenTransaction.AddedDate)
                         throw new TokenTransactionAlreadyCancelledException();
-                    
+
                     var coinGateInvoiceModel = new CoinGateInvoiceTransferModel
                     {
                         OrderId = tokenTransaction.Id.ToString(),

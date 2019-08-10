@@ -32,6 +32,8 @@
         TokenBillingNotFoundException = 6001,
         TokenTransactionAlreadyCancelledException = 6002,
         TokenTransactionAlreadyConfirmedException = 6003,
-        TokenTransactionNotFoundException = 6004
+        TokenTransactionNotFoundException = 6004,
+        PendingTokenTransactionExistsException = 6005,
+        PendingTokenBillingExistsException = 6006,
     }
 }

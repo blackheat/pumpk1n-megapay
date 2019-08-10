@@ -1,10 +1,14 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pumpk1n_backend.Attributes;
+using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Models.TransferModels.Tokens;
 using pumpk1n_backend.Responders;
+using pumpk1n_backend.Services.Tokens;
 
 namespace pumpk1n_backend.Controllers
 {
@@ -13,6 +17,135 @@ namespace pumpk1n_backend.Controllers
     [Route("token")]
     public class TokenController : ControllerBase
     {
+        private readonly ITokenService _tokenService;
+
+        public TokenController(ITokenService tokenService)
+        {
+            _tokenService = tokenService;
+        }
+
+        /// <summary>
+        /// Get current logged-in user balance
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("balance")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUserBalance()
+        {
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.GetUserBalance(userId);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Get specific user's balance
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("balance/user/{id}")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> GetSpecificUserBalance(long id)
+        {
+            var result = await _tokenService.GetUserBalance(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// Create token purchase request
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("balance/request")]
+        [Authorize]
+        public async Task<IActionResult> CreateTokenPurchaseRequest([FromBody] TokenTransactionInsertModel model)
+        {
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.CreateTokenPurchaseRequest(userId, model);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// Cancel token purchase request
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("balance/request/{id}")]
+        [Authorize]
+        public async Task<IActionResult> CancelTokenPurchaseRequest(long id)
+        {
+            var result = await _tokenService.CancelTokenPurchaseRequest(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// Get token purchase requests
+        /// </summary>
+        /// <param name="count">Count</param>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("balance/request")]
+        [Authorize]
+        public async Task<IActionResult> GetTokenPurchaseRequests(int count = 10, int page = 1)
+        {
+            var result = await _tokenService.GetTokenPurchaseRequests(count, page);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// Get user's specific token purchase request
+        /// </summary>
+        /// <param name="id">Request ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("balance/request/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetTokenPurchaseRequest(long id)
+        {
+            var result = await _tokenService.GetTokenPurchaseRequest(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// Create invoice for token purchase request
+        /// </summary>
+        /// <param name="id">Request ID</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("balance/request/{id}/billing")]
+        [Authorize]
+        public async Task<IActionResult> CreateTokenPurchaseRequestBilling(long id)
+        {
+            var result = await _tokenService.CreateBilling(id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Create token transaction for specific user
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="model"></param>
+        /// <param name="transactionType">Transaction type</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("balance/user/{id}/request")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> CreateSpecificUserTokenTransaction(long userId, [FromBody] TokenTransactionInsertModel model, TokenTransactionType transactionType)
+        {
+            var result = await _tokenService.CreateTokenTransaction(userId, model, transactionType);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [CoinGate] Process CoinGate Payment web-hook
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("coingate/hook")]
         public async Task<IActionResult> ProcessCoinGateHook()
         {
             var model = new CoinGateHookTransferModel();
@@ -58,6 +191,7 @@ namespace pumpk1n_backend.Controllers
                 }
             }
 
+            await _tokenService.ProcessCoinGateHook(model);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
     }

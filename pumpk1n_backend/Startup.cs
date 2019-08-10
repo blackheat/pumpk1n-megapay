@@ -20,6 +20,7 @@ using pumpk1n_backend.Services.InternalStuffs;
 using pumpk1n_backend.Services.Inventories;
 using pumpk1n_backend.Services.Products;
 using pumpk1n_backend.Services.Suppliers;
+using pumpk1n_backend.Services.Tokens;
 using pumpk1n_backend.Settings;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -109,6 +110,7 @@ namespace pumpk1n_backend
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IInternalService, InternalService>();
             services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<ITokenService, TokenService>();
 
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
