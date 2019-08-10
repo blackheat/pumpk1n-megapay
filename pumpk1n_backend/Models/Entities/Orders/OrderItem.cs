@@ -18,7 +18,7 @@ namespace pumpk1n_backend.Models.Entities.Orders
         [ForeignKey("OrderId")]
         public virtual Order Order { get; set; }
         
-        [ForeignKey("ProductInventoryId")]
-        public virtual ProductInventory ProductInventory { get; set; }
+        [ForeignKey("ProductId")]
+        public virtual Product Product { get; set; }
     }
 }

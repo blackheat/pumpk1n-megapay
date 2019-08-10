@@ -18,6 +18,7 @@ using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Services.Accounts;
 using pumpk1n_backend.Services.InternalStuffs;
 using pumpk1n_backend.Services.Inventories;
+using pumpk1n_backend.Services.Orders;
 using pumpk1n_backend.Services.Products;
 using pumpk1n_backend.Services.Suppliers;
 using pumpk1n_backend.Services.Tokens;
@@ -111,6 +112,7 @@ namespace pumpk1n_backend
             services.AddScoped<IInternalService, InternalService>();
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
@@ -179,12 +181,6 @@ namespace pumpk1n_backend
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
-//            app.UseSwaggerUI(c =>
-//            {
-//                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pumpk1n API V1");
-//                c.RoutePrefix = string.Empty;
-//            });
-
             app.UseReDoc(c =>
             {
                 c.SpecUrl = "/swagger/v1/swagger.json";
