@@ -58,6 +58,7 @@ namespace pumpk1n_backend.Services.Tokens
                     var tokenTransaction = _mapper.Map<TokenTransactionInsertModel, UserTokenTransaction>(model);
                     tokenTransaction.CustomerId = userId;
                     tokenTransaction.AddedDate = currentDate;
+                    tokenTransaction.TransactionType = TokenTransactionType.Add;
 
                     _context.UserTokenTransactions.Add(tokenTransaction);
                     await _context.SaveChangesAsync();
@@ -98,19 +99,28 @@ namespace pumpk1n_backend.Services.Tokens
         public async Task<UserTokenTransactionModel> GetTokenPurchaseRequest(long txId)
         {
             var tokenTransaction = await _context.UserTokenTransactions.Include(tt => tt.TokenBillings)
-                .FirstOrDefaultAsync(tt => tt.Id == txId);
+                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add);
+            var tokenTransactionModel = _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
+            return tokenTransactionModel;
+        }
+        
+        public async Task<UserTokenTransactionModel> GetUserTokenPurchaseRequest(long userId, long txId)
+        {
+            var tokenTransaction = await _context.UserTokenTransactions.Include(tt => tt.TokenBillings)
+                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId);
             var tokenTransactionModel = _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
             return tokenTransactionModel;
         }
 
-        public async Task<CustomList<UserTokenTransactionModel>> GetTokenPurchaseRequests(int count = 10, int page = 1)
+        public async Task<CustomList<UserTokenTransactionModel>> GetUserTokenPurchaseRequests(long userId, int count = 10, int page = 1)
         {
             if (page <= 0 || count <= 0)
                 throw new InvalidPaginationDataException();
             
             var startAt = (page - 1) * count;
             var tokenPurchaseRequests = await _context.UserTokenTransactions
-                .OrderByDescending(tpr => tpr.AddedDate)
+                .Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId)
+                .OrderByDescending(tt=> tt.AddedDate)
                 .Skip(startAt)
                 .Take(count).ToListAsync();
             
@@ -127,7 +137,7 @@ namespace pumpk1n_backend.Services.Tokens
             return supplierReturnModels;
         }
 
-        public async Task<CoinGateBillModel> CreateBilling(long txId)
+        public async Task<CoinGateBillModel> CreateUserBilling(long userId, long txId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -135,7 +145,7 @@ namespace pumpk1n_backend.Services.Tokens
                 {
                     var tokenTransaction = await _context.UserTokenTransactions
                         .Include(tt => tt.TokenBillings)
-                        .FirstOrDefaultAsync(tt => tt.Id == txId);
+                        .FirstOrDefaultAsync(tt => tt.Id == txId && tt.CustomerId == userId);
 
                     if (tokenTransaction.TokenBillings.Where(tb => tb.InvoiceFullyPaid).LongCount() > 0 &&
                         tokenTransaction.ConfirmedDate >= tokenTransaction.AddedDate)
@@ -190,7 +200,7 @@ namespace pumpk1n_backend.Services.Tokens
                     var tokenBilling = await _context.TokenBillings.Include(tb => tb.UserTokenTransaction)
                         .ThenInclude(utt => utt.Customer)
                         .FirstOrDefaultAsync(tb =>
-                            tb.UserTokenTransactionId == model.Id && tb.GatewayInvoiceSecret.Equals(model.Token,
+                            tb.UserTokenTransactionId == model.OrderId && tb.GatewayInvoiceSecret.Equals(model.Token,
                                 StringComparison.InvariantCultureIgnoreCase));
                     
                     if (tokenBilling == null)

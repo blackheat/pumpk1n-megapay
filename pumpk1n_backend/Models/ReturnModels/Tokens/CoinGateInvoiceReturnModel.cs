@@ -9,7 +9,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
     public class CoinGateInvoiceReturnModel : IHaveCustomMappings
     {
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long InvoiceId { get; set; }
         [JsonProperty("status")]
         public string Status { get; set; }
         [JsonProperty("do_not_convert")]
@@ -36,7 +36,7 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
         public void CreateMappings(IMapperConfigurationExpression configuration)
         {
             configuration.CreateMap<CoinGateInvoiceReturnModel, TokenBilling>()
-                .ForMember(dest => dest.GatewayInvoiceId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.GatewayInvoiceId, opt => opt.MapFrom(src => src.InvoiceId))
                 .ForMember(dest => dest.GatewayInvoiceSecret, opt => opt.MapFrom(src => src.Token))
                 .ForMember(dest => dest.GatewayInvoiceReferenceLink, opt => opt.MapFrom(src => src.PaymentUrl))
                 .ForMember(dest => dest.GatewayInvoiceReferenceLink, opt => opt.MapFrom(src => src.PaymentUrl))

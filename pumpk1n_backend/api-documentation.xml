@@ -178,5 +178,69 @@
             <param name="name">Search by name</param>
             <returns></returns>
         </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetCurrentUserBalance">
+            <summary>
+            Get current logged-in user balance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetSpecificUserBalance(System.Int64)">
+            <summary>
+            [Internal] Get specific user's balance
+            </summary>
+            <param name="id">User ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.CreateTokenPurchaseRequest(pumpk1n_backend.Models.TransferModels.Tokens.TokenTransactionInsertModel)">
+            <summary>
+            Create token purchase request
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.CancelTokenPurchaseRequest(System.Int64)">
+            <summary>
+            Cancel token purchase request
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetUserTokenPurchaseRequests(System.Int32,System.Int32)">
+            <summary>
+            Get token purchase requests
+            </summary>
+            <param name="count">Count</param>
+            <param name="page">Page number</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetUserTokenPurchaseRequest(System.Int64)">
+            <summary>
+            Get user's specific token purchase request
+            </summary>
+            <param name="id">Request ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.CreateUserTokenPurchaseRequestBilling(System.Int64)">
+            <summary>
+            Create invoice for token purchase request
+            </summary>
+            <param name="id">Request ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.CreateSpecificUserTokenTransaction(System.Int64,pumpk1n_backend.Models.TransferModels.Tokens.TokenTransactionInsertModel,pumpk1n_backend.Enumerations.TokenTransactionType)">
+            <summary>
+            [Internal] Create token transaction for specific user
+            </summary>
+            <param name="userId">User ID</param>
+            <param name="model"></param>
+            <param name="transactionType">Transaction type</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.ProcessCoinGateHook(pumpk1n_backend.Models.TransferModels.Tokens.CoinGateHookTransferModel)">
+            <summary>
+            [CoinGate] Process CoinGate Payment web-hook
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AutoMapper;
 using pumpk1n_backend.Enumerations;
@@ -12,6 +13,9 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
         public float Amount { get; set; }
         public string Notes { get; set; }
         public TokenTransactionType TransactionType { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ConfirmedDate { get; set; }
+        public DateTime CancelledDate { get; set; }
         public List<CoinGateBillModel> PaymentInvoices { get; set; } = new List<CoinGateBillModel>();
         
         public void CreateMappings(IMapperConfigurationExpression configuration)
@@ -21,6 +25,9 @@ namespace pumpk1n_backend.Models.ReturnModels.Tokens
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
                 .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.TransactionType))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.AddedDate))
+                .ForMember(dest => dest.ConfirmedDate, opt => opt.MapFrom(src => src.ConfirmedDate))
+                .ForMember(dest => dest.CancelledDate, opt => opt.MapFrom(src => src.CancelledDate))
                 .ForMember(dest => dest.PaymentInvoices, opt => opt.MapFrom(src => src.TokenBillings));
         }
     }

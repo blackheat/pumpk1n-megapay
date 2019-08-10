@@ -14,9 +14,10 @@ namespace pumpk1n_backend.Services.Tokens
             TokenTransactionInsertModel model);
 
         Task<UserTokenTransactionModel> GetTokenPurchaseRequest(long txId);
+        Task<UserTokenTransactionModel> GetUserTokenPurchaseRequest(long userId, long txId);
         Task<UserTokenTransactionModel> CancelTokenPurchaseRequest(long requestId);
-        Task<CustomList<UserTokenTransactionModel>> GetTokenPurchaseRequests(int count = 10, int page = 1);
-        Task<CoinGateBillModel> CreateBilling(long txId);
+        Task<CustomList<UserTokenTransactionModel>> GetUserTokenPurchaseRequests(long userId, int count = 10, int page = 1);
+        Task<CoinGateBillModel> CreateUserBilling(long userId, long txId);
         Task ProcessCoinGateHook(CoinGateHookTransferModel model);
 
         Task<UserTokenTransactionModel> CreateTokenTransaction(long userId,

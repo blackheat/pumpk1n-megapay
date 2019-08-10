@@ -58,7 +58,7 @@ namespace pumpk1n_backend.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("balance/request")]
+        [Route("transaction/request")]
         [Authorize]
         public async Task<IActionResult> CreateTokenPurchaseRequest([FromBody] TokenTransactionInsertModel model)
         {
@@ -73,7 +73,7 @@ namespace pumpk1n_backend.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete]
-        [Route("balance/request/{id}")]
+        [Route("transaction/request/{id}")]
         [Authorize]
         public async Task<IActionResult> CancelTokenPurchaseRequest(long id)
         {
@@ -88,11 +88,12 @@ namespace pumpk1n_backend.Controllers
         /// <param name="page">Page number</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("balance/request")]
+        [Route("transaction/request")]
         [Authorize]
-        public async Task<IActionResult> GetTokenPurchaseRequests(int count = 10, int page = 1)
+        public async Task<IActionResult> GetUserTokenPurchaseRequests(int count = 10, int page = 1)
         {
-            var result = await _tokenService.GetTokenPurchaseRequests(count, page);
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.GetUserTokenPurchaseRequests(userId, count, page);
             return ApiResponder.RespondSuccess(result);
         }
 
@@ -102,11 +103,12 @@ namespace pumpk1n_backend.Controllers
         /// <param name="id">Request ID</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("balance/request/{id}")]
+        [Route("transaction/request/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetTokenPurchaseRequest(long id)
+        public async Task<IActionResult> GetUserTokenPurchaseRequest(long id)
         {
-            var result = await _tokenService.GetTokenPurchaseRequest(id);
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.GetUserTokenPurchaseRequest(userId, id);
             return ApiResponder.RespondSuccess(result);
         }
 
@@ -118,9 +120,10 @@ namespace pumpk1n_backend.Controllers
         [HttpPut]
         [Route("balance/request/{id}/billing")]
         [Authorize]
-        public async Task<IActionResult> CreateTokenPurchaseRequestBilling(long id)
+        public async Task<IActionResult> CreateUserTokenPurchaseRequestBilling(long id)
         {
-            var result = await _tokenService.CreateBilling(id);
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.CreateUserBilling(userId, id);
             return ApiResponder.RespondSuccess(result);
         }
 
@@ -132,7 +135,7 @@ namespace pumpk1n_backend.Controllers
         /// <param name="transactionType">Transaction type</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("balance/user/{id}/request")]
+        [Route("transaction/user/{id}/request")]
         [Authorize(Roles = "InternalUser")]
         public async Task<IActionResult> CreateSpecificUserTokenTransaction(long userId, [FromBody] TokenTransactionInsertModel model, TokenTransactionType transactionType)
         {
@@ -146,9 +149,9 @@ namespace pumpk1n_backend.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("coingate/hook")]
-        public async Task<IActionResult> ProcessCoinGateHook()
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> ProcessCoinGateHook([FromForm] CoinGateHookTransferModel model)
         {
-            var model = new CoinGateHookTransferModel();
             foreach (var key in Request.Form.Keys)
             {
                 switch (key)
@@ -186,8 +189,6 @@ namespace pumpk1n_backend.Controllers
                     case "token":
                         model.Token = Request.Form[key];
                         break;
-                    default:
-                        continue;
                 }
             }
 
