@@ -115,7 +115,9 @@ namespace pumpk1n_backend.Services.Suppliers
             
             var startAt = (page - 1) * count;
             var suppliers = await _context.Suppliers
-                .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).Skip(startAt)
+                .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(s => s.AddedDate)
+                .Skip(startAt)
                 .Take(count).ToListAsync();
             
             var totalCount = await _context.Suppliers

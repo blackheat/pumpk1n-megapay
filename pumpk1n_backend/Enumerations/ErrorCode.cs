@@ -15,6 +15,7 @@
         InvalidCredentialsException = 2000,
         UserNotActivatedException = 2001,
         UserAlreadyExistsException = 2002,
+        UserDoesNotExistException = 2003,
         
         // Products
         ProductNotFoundException = 3001,
@@ -25,6 +26,14 @@
         // Inventories
         InventoryItemAlreadyExportedException = 5001,
         InventoryItemNotFoundException = 5002,
-        InventoryItemWithSameUniqueIdentifierExistsException = 5003
+        InventoryItemWithSameUniqueIdentifierExistsException = 5003,
+        
+        // Tokens
+        TokenBillingNotFoundException = 6001,
+        TokenTransactionAlreadyCancelledException = 6002,
+        TokenTransactionAlreadyConfirmedException = 6003,
+        TokenTransactionNotFoundException = 6004,
+        PendingTokenTransactionExistsException = 6005,
+        PendingTokenBillingExistsException = 6006,
     }
 }
