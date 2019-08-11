@@ -122,7 +122,7 @@ namespace pumpk1n_backend.Services.Suppliers
             
             var totalCount = await _context.Suppliers
                 .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).CountAsync();
-            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
             
             var supplierReturnModels = _mapper.Map<List<Supplier>, CustomList<SupplierReturnModel>>(suppliers);
             supplierReturnModels.CurrentPage = page;

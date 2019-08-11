@@ -136,7 +136,7 @@ namespace pumpk1n_backend.Services.Products
                 .Where(p => p.Name.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
                             p.Price >= filterModel.MinPrice && p.Price <= filterModel.MaxPrice)
                 .OrderByDescending(p => p.AddedDate).CountAsync();
-            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
             
             var productReturnModels = _mapper.Map<List<Product>, CustomList<ProductReturnModel>>(products);
             productReturnModels.TotalItems = totalCount;
