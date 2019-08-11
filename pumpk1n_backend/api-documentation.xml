@@ -40,6 +40,40 @@
             <param name="page">Page number</param>
             <returns></returns>
         </member>
+        <member name="M:pumpk1n_backend.Controllers.CartController.CreateCart">
+            <summary>
+            Create cart for current logged-in user
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.CartController.GetCurrentCart">
+            <summary>
+            Get current logged-in user's cart
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.CartController.AddProductToCart(pumpk1n_backend.Models.TransferModels.Orders.OrderItemTransferModel)">
+            <summary>
+            Add product to cart
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.CartController.DeleteCartItem(System.Int64)">
+            <summary>
+            Remove product from cart
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.CartController.UpdateCartItemQuantity(System.Int64,System.Int64)">
+            <summary>
+            Update product cart
+            </summary>
+            <param name="id">Cart Item ID</param>
+            <param name="quantity">Cart Item Quantity</param>
+            <returns></returns>
+        </member>
         <member name="M:pumpk1n_backend.Controllers.InternalController.RegisterInternalAccount(pumpk1n_backend.Models.TransferModels.Accounts.UserRegisterModel,System.String)">
             <summary>
             Register an Internal Account
@@ -84,6 +118,27 @@
             [Internal] Export one or more products
             </summary>
             <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.Checkout(pumpk1n_backend.Models.TransferModels.Orders.CustomerInformationCheckoutTransferModel)">
+            <summary>
+            Checkout
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.ConfirmOrder(System.Int64)">
+            <summary>
+            Confirm order
+            </summary>
+            <param name="orderId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.CancelOrder(System.Int64)">
+            <summary>
+            Cancel order
+            </summary>
+            <param name="orderId"></param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.ProductController.InsertProduct(pumpk1n_backend.Models.TransferModels.Products.ProductInsertModel)">

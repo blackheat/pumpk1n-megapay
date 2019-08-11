@@ -25,5 +25,9 @@ namespace pumpk1n_backend.Models.Entities.Accounts
         
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<UserTokenTransaction> UserTokenTransactions { get; set; }
+
+        public class Claims
+        {
+        }
     }
 }

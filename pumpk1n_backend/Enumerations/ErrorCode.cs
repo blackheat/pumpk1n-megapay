@@ -35,5 +35,12 @@
         TokenTransactionNotFoundException = 6004,
         PendingTokenTransactionExistsException = 6005,
         PendingTokenBillingExistsException = 6006,
+        
+        // Orders
+        CartAlreadyExistsException = 7001,
+        CartNotFoundException = 7002,
+        OrderNotFoundException = 7003,
+        CartItemNotFoundException = 7004,
+        OrderAlreadyCancelledOrCheckedoutException = 7005,
     }
 }
