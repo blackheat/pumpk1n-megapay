@@ -118,7 +118,7 @@ namespace pumpk1n_backend.Services.Accounts
                             u.Email.Contains(filterModel.Email, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).CountAsync();
 
-            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
             
             var userReturnModels = _mapper.Map<List<User>, CustomList<UserInformationModel>>(users);
             userReturnModels.CurrentPage = page;

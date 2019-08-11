@@ -132,7 +132,7 @@ namespace pumpk1n_backend.Services.Inventories
                 .Include(i => i.Customer)
                 .Include(i => i.Supplier)
                 .Include(i => i.Product).CountAsync();
-            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
 
             var itemReturnModels = _mapper.Map<List<ProductInventory>, CustomList<InventoryReturnModel>>(items);
             foreach (var itemReturnModel in itemReturnModels)
