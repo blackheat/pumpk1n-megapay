@@ -181,9 +181,9 @@ namespace pumpk1n_backend
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
-            app.UseReDoc(c =>
+            app.UseSwaggerUI(c =>
             {
-                c.SpecUrl = "/swagger/v1/swagger.json";
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pumpk1n API v1");
                 c.DocumentTitle = "Pumpk1n API Docs";
                 c.RoutePrefix = string.Empty;
             });
