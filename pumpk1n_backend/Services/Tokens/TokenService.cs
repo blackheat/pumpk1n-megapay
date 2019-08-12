@@ -50,7 +50,7 @@ namespace pumpk1n_backend.Services.Tokens
                 try
                 {
                     var pendingTokenPurchaseRequestCount = await _context.UserTokenTransactions.Where(utt =>
-                        utt.ConfirmedDate < utt.AddedDate && utt.CancelledDate < utt.AddedDate).LongCountAsync();
+                        utt.CustomerId == userId && utt.ConfirmedDate < utt.AddedDate && utt.CancelledDate < utt.AddedDate).LongCountAsync();
                     if (pendingTokenPurchaseRequestCount > 0)
                         throw new PendingTokenTransactionExistsException();
                     
