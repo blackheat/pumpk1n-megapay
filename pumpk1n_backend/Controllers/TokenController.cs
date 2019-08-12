@@ -94,7 +94,7 @@ namespace pumpk1n_backend.Controllers
         {
             var userId = long.Parse(User.Claims.First().Subject.Name);
             var result = await _tokenService.GetUserTokenPurchaseRequests(userId, count, page);
-            return ApiResponder.RespondSuccess(result);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
 
         /// <summary>
