@@ -119,13 +119,14 @@ namespace pumpk1n_backend.Services.Tokens
             
             var startAt = (page - 1) * count;
             var tokenPurchaseRequests = await _context.UserTokenTransactions
+                .Include(tt =>  tt.TokenBillings)
                 .Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId)
                 .OrderByDescending(tt=> tt.AddedDate)
                 .Skip(startAt)
                 .Take(count).ToListAsync();
             
             var totalCount = await _context.UserTokenTransactions.CountAsync();
-            var totalPages = totalCount / count + (totalCount / count > 0 ? totalCount % count : 1);
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
 
             var supplierReturnModels =
                 _mapper.Map<List<UserTokenTransaction>, CustomList<UserTokenTransactionModel>>(tokenPurchaseRequests);
