@@ -125,7 +125,7 @@ namespace pumpk1n_backend.Services.Tokens
                 .Skip(startAt)
                 .Take(count).ToListAsync();
             
-            var totalCount = await _context.UserTokenTransactions.CountAsync();
+            var totalCount = await _context.UserTokenTransactions.Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId).CountAsync();
             var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
 
             var supplierReturnModels =
