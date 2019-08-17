@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Exceptions.Orders;
 using pumpk1n_backend.Exceptions.Products;
+using pumpk1n_backend.Exceptions.Tokens;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Orders;
 using pumpk1n_backend.Models.ReturnModels.Orders;
@@ -71,7 +74,7 @@ namespace pumpk1n_backend.Services.Orders
             return _mapper.Map<Order, OrderReturnModel>(cart);
         }
 
-        public async Task<OrderItemReturnModel> AddToCart(long userId, OrderItemTransferModel model)
+        public async Task<OrderReturnModel> AddToCart(long userId, IEnumerable<OrderItemTransferModel> models)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -84,23 +87,30 @@ namespace pumpk1n_backend.Services.Orders
                     
                     if (cart == null)
                         throw new CartNotFoundException();
-                    
-                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.ProductId);
-                    
-                    if (product == null)
-                        throw new ProductNotFoundException();
 
-                    var orderItem = _mapper.Map<OrderItemTransferModel, OrderItem>(model);
-                    orderItem.OrderId = cart.Id;
-                    orderItem.SinglePrice = product.Id;
+                    foreach (var model in models)
+                    {
+                        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.ProductId);
+                    
+                        if (product == null)
+                            throw new ProductNotFoundException();
 
-                    _context.OrderItems.Add(orderItem);
-                    await _context.SaveChangesAsync();
+                        var orderItem = _mapper.Map<OrderItemTransferModel, OrderItem>(model);
+                        orderItem.OrderId = cart.Id;
+                        orderItem.SinglePrice = product.Id;
+
+                        _context.OrderItems.Add(orderItem);
+                        await _context.SaveChangesAsync();
+                    }
                     transaction.Commit();
 
-                    var populatedOrderItem = await _context.OrderItems.Include(oi => oi.Product)
-                        .FirstOrDefaultAsync(oi => oi.Id == orderItem.Id);
-                    return _mapper.Map<OrderItem, OrderItemReturnModel>(populatedOrderItem);
+                    var populatedCart = await _context.Orders
+                        .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                        .Include(o => o.Customer)
+                        .FirstOrDefaultAsync(o => o.Id == cart.Id);
+                    
+                    return _mapper.Map<Order, OrderReturnModel>(populatedCart);
                 }
                 catch (Exception)
                 {
@@ -169,13 +179,14 @@ namespace pumpk1n_backend.Services.Orders
             }
         }
 
-        public async Task<OrderItemReturnModel> Checkout(long userId, CustomerInformationCheckoutTransferModel model)
+        public async Task<OrderReturnModel> Checkout(long userId, CustomerInformationCheckoutTransferModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
                     var cart = await _context.Orders
+                        .Include(o => o.Customer)
                         .Include(o => o.Customer)
                         .Include(o => o.OrderItems)
                         .ThenInclude(oi => oi.Product)
@@ -186,16 +197,22 @@ namespace pumpk1n_backend.Services.Orders
                     if (cart == null)
                         throw new CartNotFoundException();
 
+                    var totalPrice = cart.OrderItems.Sum(oi => oi.SinglePrice * oi.Quantity);
+                    if (totalPrice > cart.Customer.Balance)
+                        throw new InsufficientBalanceException();
+
                     cart.CustomerName = model.Name;
                     cart.Address = model.Address;
                     cart.Notes = model.Notes;
                     cart.CheckedOutDate = DateTime.UtcNow;
+                    cart.Customer.Balance -= totalPrice;
 
                     _context.Orders.Update(cart);
+                    _context.Users.Update(cart.Customer);
                     await _context.SaveChangesAsync();
                     transaction.Commit();
 
-                    return _mapper.Map<Order, OrderItemReturnModel>(cart);
+                    return _mapper.Map<Order, OrderReturnModel>(cart);
                 }
                 catch (Exception)
                 {
@@ -205,7 +222,7 @@ namespace pumpk1n_backend.Services.Orders
             }
         }
         
-        public async Task<OrderItemReturnModel> ConfirmOrder(long orderId)
+        public async Task<OrderReturnModel> ConfirmOrder(long orderId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -228,7 +245,7 @@ namespace pumpk1n_backend.Services.Orders
                     await _context.SaveChangesAsync();
                     transaction.Commit();
 
-                    return _mapper.Map<Order, OrderItemReturnModel>(order);
+                    return _mapper.Map<Order, OrderReturnModel>(order);
                 }
                 catch (Exception)
                 {
@@ -238,7 +255,7 @@ namespace pumpk1n_backend.Services.Orders
             }
         }
         
-        public async Task<OrderItemReturnModel> CancelOrder(long orderId)
+        public async Task<OrderReturnModel> CancelOrder(long orderId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -261,7 +278,7 @@ namespace pumpk1n_backend.Services.Orders
                     await _context.SaveChangesAsync();
                     transaction.Commit();
 
-                    return _mapper.Map<Order, OrderItemReturnModel>(order);
+                    return _mapper.Map<Order, OrderReturnModel>(order);
                 }
                 catch (Exception)
                 {

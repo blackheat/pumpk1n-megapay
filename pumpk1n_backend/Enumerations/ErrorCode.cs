@@ -35,6 +35,7 @@
         TokenTransactionNotFoundException = 6004,
         PendingTokenTransactionExistsException = 6005,
         PendingTokenBillingExistsException = 6006,
+        InsufficientBalanceException = 6007,
         
         // Orders
         CartAlreadyExistsException = 7001,

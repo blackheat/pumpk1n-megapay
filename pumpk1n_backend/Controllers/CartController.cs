@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -53,15 +54,15 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// Add product to cart
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="models"></param>
         /// <returns></returns>
         [HttpPut]
         [Authorize]
         [Route("item")]
-        public async Task<IActionResult> AddProductToCart([FromBody] OrderItemTransferModel model)
+        public async Task<IActionResult> AddProductToCart([FromBody] List<OrderItemTransferModel> models)
         {
             var userId = long.Parse(User.Claims.First().Subject.Name);
-            var result = await _orderService.AddToCart(userId, model);
+            var result = await _orderService.AddToCart(userId, models);
             return ApiResponder.RespondSuccess(result);
         }
 
