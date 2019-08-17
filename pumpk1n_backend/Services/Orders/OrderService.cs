@@ -94,6 +94,12 @@ namespace pumpk1n_backend.Services.Orders
                     
                         if (product == null)
                             throw new ProductNotFoundException();
+                        
+                        if (product.Deprecated)
+                            throw new ProductIsDeprecatedException();
+                        
+                        if (product.OutOfStock)
+                            throw new ProductIsOutOfStockException();
 
                         var orderItem = _mapper.Map<OrderItemTransferModel, OrderItem>(model);
                         orderItem.OrderId = cart.Id;
@@ -119,6 +125,10 @@ namespace pumpk1n_backend.Services.Orders
                 }
             }
         }
+
+//        public async Task<OrderReturnModel> BulkCartUpdate(long userId, IEnumerable<OrderItemTransferModel> models)
+//        {
+//        }
 
         public async Task DeleteCartItem(long orderItemId)
         {
@@ -196,6 +206,19 @@ namespace pumpk1n_backend.Services.Orders
                     
                     if (cart == null)
                         throw new CartNotFoundException();
+                    
+                    // Last product existence, stock & deprecated re-check
+                    foreach (var product in cart.OrderItems.Select(oi => oi.Product).ToList())
+                    {
+                        if (product == null)
+                            throw new ProductNotFoundException();
+                        
+                        if (product.Deprecated)
+                            throw new ProductIsDeprecatedException();
+                        
+                        if (product.OutOfStock)
+                            throw new ProductIsOutOfStockException();
+                    }
 
                     var totalPrice = cart.OrderItems.Sum(oi => oi.SinglePrice * oi.Quantity);
                     if (totalPrice > cart.Customer.Balance)

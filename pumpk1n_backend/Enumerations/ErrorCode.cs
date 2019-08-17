@@ -19,6 +19,8 @@
         
         // Products
         ProductNotFoundException = 3001,
+        ProductIsDeprecatedException = 3002,
+        ProductIsOutOfStockException = 3003,
         
         // Suppliers
         SupplierNotFoundException = 4001,
