@@ -40,40 +40,6 @@
             <param name="page">Page number</param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.CartController.CreateCart">
-            <summary>
-            Create cart for current logged-in user
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.CartController.GetCurrentCart">
-            <summary>
-            Get current logged-in user's cart
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.CartController.AddProductToCart(pumpk1n_backend.Models.TransferModels.Orders.OrderItemTransferModel)">
-            <summary>
-            Add product to cart
-            </summary>
-            <param name="model"></param>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.CartController.DeleteCartItem(System.Int64)">
-            <summary>
-            Remove product from cart
-            </summary>
-            <param name="id"></param>
-            <returns></returns>
-        </member>
-        <member name="M:pumpk1n_backend.Controllers.CartController.UpdateCartItemQuantity(System.Int64,System.Int64)">
-            <summary>
-            Update product cart
-            </summary>
-            <param name="id">Cart Item ID</param>
-            <param name="quantity">Cart Item Quantity</param>
-            <returns></returns>
-        </member>
         <member name="M:pumpk1n_backend.Controllers.InternalController.RegisterInternalAccount(pumpk1n_backend.Models.TransferModels.Accounts.UserRegisterModel,System.String)">
             <summary>
             Register an Internal Account
@@ -120,7 +86,7 @@
             <param name="model"></param>
             <returns></returns>
         </member>
-        <member name="M:pumpk1n_backend.Controllers.OrderController.Checkout(pumpk1n_backend.Models.TransferModels.Orders.CustomerInformationCheckoutTransferModel)">
+        <member name="M:pumpk1n_backend.Controllers.OrderController.Checkout(pumpk1n_backend.Models.TransferModels.Orders.CheckoutTransferModel)">
             <summary>
             Checkout
             </summary>
@@ -139,6 +105,31 @@
             Cancel order
             </summary>
             <param name="orderId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.GetUserOrders(System.Int32,System.Int32)">
+            <summary>
+            Get current user's orders
+            </summary>
+            <param name="page">Page number</param>
+            <param name="count">Count</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.GetSpecificUserOrders(System.Int64,System.Int32,System.Int32)">
+            <summary>
+            [Internal] Get specific user's orders
+            </summary>
+            <param name="userId"></param>
+            <param name="page"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.GetAllUsersOrders(System.Int32,System.Int32)">
+            <summary>
+            [Internal] Get all user's orders
+            </summary>
+            <param name="page"></param>
+            <param name="count"></param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.ProductController.InsertProduct(pumpk1n_backend.Models.TransferModels.Products.ProductInsertModel)">
@@ -264,6 +255,32 @@
             <summary>
             Get token purchase requests
             </summary>
+            <param name="count">Count</param>
+            <param name="page">Page number</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetSpecificUserTokenPurchaseRequests(System.Int64,System.Int32,System.Int32)">
+            <summary>
+            [Internal] Get specific user's token purchase requests
+            </summary>
+            <param name="userId">User ID</param>
+            <param name="count">Count</param>
+            <param name="page">Page number</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetUserTokenTransactions(System.Int32,System.Int32)">
+            <summary>
+            Get current user's token transactions history
+            </summary>
+            <param name="count">Count</param>
+            <param name="page">Page number</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.TokenController.GetSpecificUserTokenTransactions(System.Int64,System.Int32,System.Int32)">
+            <summary>
+            [Internal] Get specific user's token transactions history
+            </summary>
+            <param name="userId">User ID</param>
             <param name="count">Count</param>
             <param name="page">Page number</param>
             <returns></returns>
