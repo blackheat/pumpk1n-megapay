@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Exceptions.Orders;
+using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Products;
 using pumpk1n_backend.Exceptions.Tokens;
+using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Orders;
 using pumpk1n_backend.Models.ReturnModels.Orders;
@@ -25,178 +27,13 @@ namespace pumpk1n_backend.Services.Orders
             _mapper = mapper;
         }
 
-        public async Task<OrderReturnModel> CreateCart(long userId)
+        public async Task<OrderReturnModel> Checkout(long userId, CheckoutTransferModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var currentCart = await _context.Orders.FirstOrDefaultAsync(o =>
-                        o.CustomerId == userId && o.AddedDate > o.CheckedOutDate || o.AddedDate > o.ConfirmedDate ||
-                        o.AddedDate > o.CancelledDate);
-                    if (currentCart != null)
-                        throw new CartAlreadyExistsException();
-                    
-                    var cart = new Order
-                    {
-                        AddedDate = DateTime.UtcNow,
-                        CustomerId = userId
-                    };
-
-                    _context.Orders.Add(cart);
-                    await _context.SaveChangesAsync();
-                    transaction.Commit();
-
-                    var populatedCart = await _context.Orders
-                        .Include(o => o.Customer)
-                        .FirstOrDefaultAsync(o => o.Id == cart.Id);
-
-                    return _mapper.Map<Order, OrderReturnModel>(populatedCart);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-
-        public async Task<OrderReturnModel> GetCurrentCart(long userId)
-        {
-            var cart = await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o =>
-                    o.CustomerId == userId && o.AddedDate > o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
-                    o.AddedDate > o.CancelledDate);
-
-            return _mapper.Map<Order, OrderReturnModel>(cart);
-        }
-
-        public async Task<OrderReturnModel> AddToCart(long userId, IEnumerable<OrderItemTransferModel> models)
-        {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var cart = await _context.Orders
-                        .FirstOrDefaultAsync(o =>
-                            o.CustomerId == userId && o.AddedDate > o.CheckedOutDate || o.AddedDate > o.ConfirmedDate ||
-                            o.AddedDate > o.CancelledDate);
-                    
-                    if (cart == null)
-                        throw new CartNotFoundException();
-
-                    foreach (var model in models)
-                    {
-                        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.ProductId);
-                    
-                        if (product == null)
-                            throw new ProductNotFoundException();
-                        
-                        if (product.Deprecated)
-                            throw new ProductIsDeprecatedException();
-                        
-                        if (product.OutOfStock)
-                            throw new ProductIsOutOfStockException();
-
-                        var orderItem = _mapper.Map<OrderItemTransferModel, OrderItem>(model);
-                        orderItem.OrderId = cart.Id;
-                        orderItem.SinglePrice = product.Id;
-
-                        _context.OrderItems.Add(orderItem);
-                        await _context.SaveChangesAsync();
-                    }
-                    transaction.Commit();
-
-                    var populatedCart = await _context.Orders
-                        .Include(o => o.OrderItems)
-                        .ThenInclude(oi => oi.Product)
-                        .Include(o => o.Customer)
-                        .FirstOrDefaultAsync(o => o.Id == cart.Id);
-                    
-                    return _mapper.Map<Order, OrderReturnModel>(populatedCart);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-
-//        public async Task<OrderReturnModel> BulkCartUpdate(long userId, IEnumerable<OrderItemTransferModel> models)
-//        {
-//        }
-
-        public async Task DeleteCartItem(long orderItemId)
-        {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var cartItem = await _context.OrderItems
-                        .Include(oi => oi.Order)
-                        .FirstOrDefaultAsync(oi =>
-                            oi.Id == orderItemId && oi.Order.CancelledDate < oi.Order.AddedDate &&
-                            oi.Order.ConfirmedDate < oi.Order.AddedDate &&
-                            oi.Order.CheckedOutDate < oi.Order.AddedDate);
-                    
-                    if (cartItem == null)
-                        throw new CartItemNotFoundException();
-
-                    _context.OrderItems.Remove(cartItem);
-                    await _context.SaveChangesAsync();
-                    transaction.Commit();
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-        
-        public async Task<OrderItemReturnModel> UpdateCartItemQuantity(long orderItemId, long quantity)
-        {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var cartItem = await _context.OrderItems
-                        .Include(oi => oi.Product)
-                        .Include(oi => oi.Order)
-                        .FirstOrDefaultAsync(oi =>
-                            oi.Id == orderItemId && oi.Order.CancelledDate < oi.Order.AddedDate &&
-                            oi.Order.ConfirmedDate < oi.Order.AddedDate &&
-                            oi.Order.CheckedOutDate < oi.Order.AddedDate);
-                    
-                    if (cartItem == null)
-                        throw new CartItemNotFoundException();
-                    
-                    cartItem.Quantity = quantity;
-                    _context.OrderItems.Update(cartItem);
-                    await _context.SaveChangesAsync();
-                    transaction.Commit();
-                    return _mapper.Map<OrderItem, OrderItemReturnModel>(cartItem);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-        }
-
-        public async Task<OrderReturnModel> Checkout(long userId, CustomerInformationCheckoutTransferModel model)
-        {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var cart = await _context.Orders
-                        .Include(o => o.Customer)
+                    var order = await _context.Orders
                         .Include(o => o.Customer)
                         .Include(o => o.OrderItems)
                         .ThenInclude(oi => oi.Product)
@@ -204,12 +41,30 @@ namespace pumpk1n_backend.Services.Orders
                             o.CustomerId == userId && o.AddedDate > o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
                             o.AddedDate > o.CancelledDate);
                     
-                    if (cart == null)
-                        throw new CartNotFoundException();
-                    
-                    // Last product existence, stock & deprecated re-check
-                    foreach (var product in cart.OrderItems.Select(oi => oi.Product).ToList())
+                    if (order == null)
                     {
+                        order = new Order
+                        {
+                            AddedDate = DateTime.UtcNow,
+                            CustomerId = userId
+                        };
+
+                        _context.Orders.Add(order);
+                        _context.SaveChanges();
+                        
+                        order = await _context.Orders
+                            .Include(o => o.Customer)
+                            .Include(o => o.OrderItems)
+                            .ThenInclude(oi => oi.Product)
+                            .FirstOrDefaultAsync(o =>
+                                o.CustomerId == userId && o.AddedDate > o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
+                                o.AddedDate > o.CancelledDate);
+                    }
+
+                    foreach (var item in model.Items)
+                    {
+                        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                    
                         if (product == null)
                             throw new ProductNotFoundException();
                         
@@ -218,24 +73,37 @@ namespace pumpk1n_backend.Services.Orders
                         
                         if (product.OutOfStock)
                             throw new ProductIsOutOfStockException();
-                    }
 
-                    var totalPrice = cart.OrderItems.Sum(oi => oi.SinglePrice * oi.Quantity);
-                    if (totalPrice > cart.Customer.Balance)
+                        var orderItem = _mapper.Map<OrderItemTransferModel, OrderItem>(item);
+                        orderItem.OrderId = order.Id;
+                        orderItem.SinglePrice = product.Price;
+
+                        _context.OrderItems.Add(orderItem);
+                    }
+                    
+                    var totalPrice = order.OrderItems.Sum(oi => oi.SinglePrice * oi.Quantity);
+                    if (totalPrice > order.Customer.Balance)
                         throw new InsufficientBalanceException();
 
-                    cart.CustomerName = model.Name;
-                    cart.Address = model.Address;
-                    cart.Notes = model.Notes;
-                    cart.CheckedOutDate = DateTime.UtcNow;
-                    cart.Customer.Balance -= totalPrice;
-
-                    _context.Orders.Update(cart);
-                    _context.Users.Update(cart.Customer);
+                    order.CustomerName = model.Name;
+                    order.Address = model.Address;
+                    order.Notes = model.Notes;
+                    order.CheckedOutDate = DateTime.UtcNow;
+                    order.Customer.Balance -= totalPrice;
+                    
+                    _context.Orders.Update(order);
+                    _context.Users.Update(order.Customer);
                     await _context.SaveChangesAsync();
+                    
                     transaction.Commit();
 
-                    return _mapper.Map<Order, OrderReturnModel>(cart);
+                    var populatedCart = await _context.Orders
+                        .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                        .Include(o => o.Customer)
+                        .FirstOrDefaultAsync(o => o.Id == order.Id);
+                    
+                    return _mapper.Map<Order, OrderReturnModel>(populatedCart);
                 }
                 catch (Exception)
                 {
@@ -244,7 +112,7 @@ namespace pumpk1n_backend.Services.Orders
                 }
             }
         }
-        
+
         public async Task<OrderReturnModel> ConfirmOrder(long orderId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -309,6 +177,78 @@ namespace pumpk1n_backend.Services.Orders
                     throw;
                 }
             }
+        }
+
+        public async Task<CustomList<OrderReturnModel>> GetUserOrders(long userId, int page, int count)
+        {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+
+            var startAt = (page - 1) * count;
+            
+            var orders = await _context.Orders.Skip(startAt).Take(count)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.AddedDate)
+                .ThenByDescending(o => o.CheckedOutDate)
+                .ThenBy(o => o.ConfirmedDate)
+                .ThenByDescending(o => o.CancelledDate)
+                .Where(o =>
+                    o.CustomerId == userId && o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
+                    o.AddedDate > o.CancelledDate)
+                .ToListAsync();
+            
+            var totalCount = await _context.Orders
+                .Where(o =>
+                    o.CustomerId == userId && o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
+                    o.AddedDate > o.CancelledDate)
+                .CountAsync();
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
+
+            var orderReturnModels = _mapper.Map<List<Order>, CustomList<OrderReturnModel>>(orders);
+            orderReturnModels.CurrentPage = page;
+            orderReturnModels.TotalItems = totalCount;
+            orderReturnModels.TotalPages = totalPages;
+            orderReturnModels.IsListPartial = true;
+
+            return orderReturnModels;
+        }
+        
+        public async Task<CustomList<OrderReturnModel>> GetOrders(int page, int count)
+        {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+
+            var startAt = (page - 1) * count;
+            
+            var orders = await _context.Orders.Skip(startAt).Take(count)
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.AddedDate)
+                .ThenByDescending(o => o.CheckedOutDate)
+                .ThenBy(o => o.ConfirmedDate)
+                .ThenByDescending(o => o.CancelledDate)
+                .Where(o =>
+                    o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
+                    o.AddedDate > o.CancelledDate)
+                .ToListAsync();
+            
+            var totalCount = await _context.Orders
+                .Where(o =>
+                    o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
+                    o.AddedDate > o.CancelledDate)
+                .CountAsync();
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
+
+            var orderReturnModels = _mapper.Map<List<Order>, CustomList<OrderReturnModel>>(orders);
+            orderReturnModels.CurrentPage = page;
+            orderReturnModels.TotalItems = totalCount;
+            orderReturnModels.TotalPages = totalPages;
+            orderReturnModels.IsListPartial = true;
+
+            return orderReturnModels;
         }
     }
 }

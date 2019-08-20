@@ -135,7 +135,7 @@ namespace pumpk1n_backend.Controllers
         /// <param name="transactionType">Transaction type</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("transaction/user/{id}/request")]
+        [Route("transaction/user/{userId}/request")]
         [Authorize(Roles = "InternalUser")]
         public async Task<IActionResult> CreateSpecificUserTokenTransaction(long userId, [FromBody] TokenTransactionInsertModel model, TokenTransactionType transactionType)
         {
