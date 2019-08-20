@@ -4,15 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using pumpk1n_backend.Enumerations;
 using pumpk1n_backend.Exceptions.Orders;
 using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Products;
 using pumpk1n_backend.Exceptions.Tokens;
+using pumpk1n_backend.Helpers.Tokens;
 using pumpk1n_backend.Models;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Orders;
 using pumpk1n_backend.Models.ReturnModels.Orders;
 using pumpk1n_backend.Models.TransferModels.Orders;
+using pumpk1n_backend.Models.TransferModels.Tokens;
 
 namespace pumpk1n_backend.Services.Orders
 {
@@ -20,11 +23,13 @@ namespace pumpk1n_backend.Services.Orders
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
+        private readonly ITokenHelper _tokenHelper;
 
-        public OrderService(DatabaseContext context, IMapper mapper)
+        public OrderService(DatabaseContext context, IMapper mapper, ITokenHelper tokenHelper)
         {
             _context = context;
             _mapper = mapper;
+            _tokenHelper = tokenHelper;
         }
 
         public async Task<OrderReturnModel> Checkout(long userId, CheckoutTransferModel model)
@@ -89,7 +94,16 @@ namespace pumpk1n_backend.Services.Orders
                     order.Address = model.Address;
                     order.Notes = model.Notes;
                     order.CheckedOutDate = DateTime.UtcNow;
-                    order.Customer.Balance -= totalPrice;
+                    
+                    // Updating balance
+                    var currentDateTime = DateTime.UtcNow;
+                    var tokenTransactionInsertModel = new TokenTransactionInsertModel
+                    {
+                        Amount = totalPrice,
+                        Notes = $"Payment for order with ID : {order.Id}"
+                    };
+                    _tokenHelper.AddTokenTransaction(userId, currentDateTime,
+                        currentDateTime, tokenTransactionInsertModel, TokenTransactionType.Subtract);
                     
                     _context.Orders.Update(order);
                     _context.Users.Update(order.Customer);

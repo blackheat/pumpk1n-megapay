@@ -59,6 +59,7 @@ namespace pumpk1n_backend.Services.Tokens
                     tokenTransaction.CustomerId = userId;
                     tokenTransaction.AddedDate = currentDate;
                     tokenTransaction.TransactionType = TokenTransactionType.Add;
+                    tokenTransaction.IsPurchaseRequest = true;
 
                     _context.UserTokenTransactions.Add(tokenTransaction);
                     await _context.SaveChangesAsync();
@@ -81,7 +82,7 @@ namespace pumpk1n_backend.Services.Tokens
                 try
                 {
                     var tokenPurchaseRequest =
-                        await _context.UserTokenTransactions.FirstOrDefaultAsync(utt => utt.Id == requestId);
+                        await _context.UserTokenTransactions.FirstOrDefaultAsync(utt => utt.Id == requestId && utt.IsPurchaseRequest);
                     tokenPurchaseRequest.CancelledDate = DateTime.UtcNow;
                     _context.UserTokenTransactions.Update(tokenPurchaseRequest);
                     await _context.SaveChangesAsync();
@@ -99,7 +100,7 @@ namespace pumpk1n_backend.Services.Tokens
         public async Task<UserTokenTransactionModel> GetTokenPurchaseRequest(long txId)
         {
             var tokenTransaction = await _context.UserTokenTransactions.Include(tt => tt.TokenBillings)
-                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add);
+                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add && tt.IsPurchaseRequest);
             var tokenTransactionModel = _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
             return tokenTransactionModel;
         }
@@ -107,7 +108,7 @@ namespace pumpk1n_backend.Services.Tokens
         public async Task<UserTokenTransactionModel> GetUserTokenPurchaseRequest(long userId, long txId)
         {
             var tokenTransaction = await _context.UserTokenTransactions.Include(tt => tt.TokenBillings)
-                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId);
+                .FirstOrDefaultAsync(tt => tt.Id == txId && tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId && tt.IsPurchaseRequest);
             var tokenTransactionModel = _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
             return tokenTransactionModel;
         }
@@ -120,16 +121,42 @@ namespace pumpk1n_backend.Services.Tokens
             var startAt = (page - 1) * count;
             var tokenPurchaseRequests = await _context.UserTokenTransactions
                 .Include(tt =>  tt.TokenBillings)
-                .Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId)
+                .Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId && tt.IsPurchaseRequest)
                 .OrderByDescending(tt=> tt.AddedDate)
                 .Skip(startAt)
                 .Take(count).ToListAsync();
             
-            var totalCount = await _context.UserTokenTransactions.Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId).CountAsync();
+            var totalCount = await _context.UserTokenTransactions.Where(tt => tt.TransactionType == TokenTransactionType.Add && tt.CustomerId == userId && tt.IsPurchaseRequest).CountAsync();
             var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
 
             var supplierReturnModels =
                 _mapper.Map<List<UserTokenTransaction>, CustomList<UserTokenTransactionModel>>(tokenPurchaseRequests);
+            supplierReturnModels.CurrentPage = page;
+            supplierReturnModels.TotalPages = totalPages;
+            supplierReturnModels.TotalItems = totalCount;
+            supplierReturnModels.IsListPartial = true;
+
+            return supplierReturnModels;
+        }
+        
+        public async Task<CustomList<UserTokenTransactionModel>> GetUserTokenTransactions(long userId, int count = 10, int page = 1)
+        {
+            if (page <= 0 || count <= 0)
+                throw new InvalidPaginationDataException();
+            
+            var startAt = (page - 1) * count;
+            var tokenTransactions = await _context.UserTokenTransactions
+                .Include(tt =>  tt.TokenBillings)
+                .Where(tt => tt.CustomerId == userId)
+                .OrderByDescending(tt=> tt.AddedDate)
+                .Skip(startAt)
+                .Take(count).ToListAsync();
+            
+            var totalCount = await _context.UserTokenTransactions.Where(tt => tt.CustomerId == userId).CountAsync();
+            var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);
+
+            var supplierReturnModels =
+                _mapper.Map<List<UserTokenTransaction>, CustomList<UserTokenTransactionModel>>(tokenTransactions);
             supplierReturnModels.CurrentPage = page;
             supplierReturnModels.TotalPages = totalPages;
             supplierReturnModels.TotalItems = totalCount;
@@ -146,7 +173,7 @@ namespace pumpk1n_backend.Services.Tokens
                 {
                     var tokenTransaction = await _context.UserTokenTransactions
                         .Include(tt => tt.TokenBillings)
-                        .FirstOrDefaultAsync(tt => tt.Id == txId && tt.CustomerId == userId);
+                        .FirstOrDefaultAsync(tt => tt.Id == txId && tt.CustomerId == userId && tt.IsPurchaseRequest);
 
                     if (tokenTransaction.TokenBillings.Where(tb => tb.InvoiceFullyPaid).LongCount() > 0 &&
                         tokenTransaction.ConfirmedDate >= tokenTransaction.AddedDate)
@@ -244,26 +271,10 @@ namespace pumpk1n_backend.Services.Tokens
             {
                 try
                 {
-                    var tokenTransaction = _mapper.Map<TokenTransactionInsertModel, UserTokenTransaction>(model);
-                    tokenTransaction.CustomerId = userId;
-                    tokenTransaction.AddedDate = tokenTransaction.ConfirmedDate = DateTime.UtcNow;
-                    tokenTransaction.TransactionType = transactionType;
-
-                    _context.UserTokenTransactions.Add(tokenTransaction);
-
-                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                    if (user == null)
-                        throw new UserDoesNotExistException();
-                    if (transactionType == TokenTransactionType.Add)
-                        user.Balance += model.Amount;
-                    else
-                        user.Balance -= model.Amount;
-
-                    _context.Users.Update(user);
-
-                    await _context.SaveChangesAsync();
+                    var currentDateTime = DateTime.UtcNow;
+                    var tokenTransaction = _tokenHelper.AddTokenTransaction(userId, currentDateTime,
+                        currentDateTime, model, transactionType);
                     transaction.Commit();
-
                     return _mapper.Map<UserTokenTransaction, UserTokenTransactionModel>(tokenTransaction);
                 }
                 catch (Exception)

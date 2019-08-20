@@ -98,6 +98,54 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
+        /// [Internal] Get specific user's token purchase requests
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="count">Count</param>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("user/{userId}/transaction/request")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> GetSpecificUserTokenPurchaseRequests(long userId, int count = 10, int page = 1)
+        {
+            var result = await _tokenService.GetUserTokenPurchaseRequests(userId, count, page);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
+        }
+        
+        /// <summary>
+        /// Get current user's token transactions history
+        /// </summary>
+        /// <param name="count">Count</param>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("transaction/history")]
+        [Authorize]
+        public async Task<IActionResult> GetUserTokenTransactions(int count = 10, int page = 1)
+        {
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _tokenService.GetUserTokenTransactions(userId, count, page);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
+        }
+
+        /// <summary>
+        /// [Internal] Get specific user's token transactions history
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="count">Count</param>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("user/{userId}/transaction/history")]
+        [Authorize(Roles = "InternalUser")]
+        public async Task<IActionResult> GetSpecificUserTokenTransactions(long userId, int count = 10, int page = 1)
+        {
+            var result = await _tokenService.GetUserTokenTransactions(userId, count, page);
+            return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
+        }
+
+        /// <summary>
         /// Get user's specific token purchase request
         /// </summary>
         /// <param name="id">Request ID</param>

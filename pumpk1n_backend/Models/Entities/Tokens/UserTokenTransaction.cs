@@ -19,6 +19,7 @@ namespace pumpk1n_backend.Models.Entities.Tokens
         public DateTime AddedDate { get; set; }
         public DateTime ConfirmedDate { get; set; }
         public DateTime CancelledDate { get; set; }
+        public bool IsPurchaseRequest { get; set; }
 
         [ForeignKey("CustomerId")]
         public virtual User Customer { get; set; }
