@@ -95,16 +95,16 @@
         </member>
         <member name="M:pumpk1n_backend.Controllers.OrderController.ConfirmOrder(System.Int64)">
             <summary>
-            Confirm order
+            [Internal] Confirm order
             </summary>
-            <param name="orderId"></param>
+            <param name="id">Order ID</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.OrderController.CancelOrder(System.Int64)">
             <summary>
-            Cancel order
+            [Internal] Cancel order
             </summary>
-            <param name="orderId"></param>
+            <param name="id">Order ID</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.OrderController.GetUserOrders(System.Int32,System.Int32)">
@@ -119,17 +119,31 @@
             <summary>
             [Internal] Get specific user's orders
             </summary>
-            <param name="userId"></param>
-            <param name="page"></param>
-            <param name="count"></param>
+            <param name="userId">User ID</param>
+            <param name="page">Page number</param>
+            <param name="count">Count</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.OrderController.GetAllUsersOrders(System.Int32,System.Int32)">
             <summary>
             [Internal] Get all user's orders
             </summary>
-            <param name="page"></param>
-            <param name="count"></param>
+            <param name="page">Page number</param>
+            <param name="count">Count</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.GetUserOrder(System.Int64)">
+            <summary>
+            Get current user's specific order
+            </summary>
+            <param name="id">Order ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:pumpk1n_backend.Controllers.OrderController.GetOrder(System.Int64)">
+            <summary>
+            [Internal] Get specific order
+            </summary>
+            <param name="id">Order ID</param>
             <returns></returns>
         </member>
         <member name="M:pumpk1n_backend.Controllers.ProductController.InsertProduct(pumpk1n_backend.Models.TransferModels.Products.ProductInsertModel)">

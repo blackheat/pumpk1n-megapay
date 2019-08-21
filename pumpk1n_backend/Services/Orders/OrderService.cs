@@ -264,5 +264,29 @@ namespace pumpk1n_backend.Services.Orders
 
             return orderReturnModels;
         }
+
+        public async Task<OrderReturnModel> GetOrder(long orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            var orderReturnModel = _mapper.Map<Order, OrderReturnModel>(order);
+            return orderReturnModel;
+        }
+
+        public async Task<OrderReturnModel> GetUserOrder(long userId, long orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == userId);
+
+            var orderReturnModel = _mapper.Map<Order, OrderReturnModel>(order);
+            return orderReturnModel;
+        }
     }
 }

@@ -13,5 +13,7 @@ namespace pumpk1n_backend.Services.Orders
         Task<OrderReturnModel> CancelOrder(long orderId);
         Task<CustomList<OrderReturnModel>> GetUserOrders(long userId, int page, int count);
         Task<CustomList<OrderReturnModel>> GetOrders(int page, int count);
+        Task<OrderReturnModel> GetOrder(long orderId);
+        Task<OrderReturnModel> GetUserOrder(long userId, long orderId);
     }
 }

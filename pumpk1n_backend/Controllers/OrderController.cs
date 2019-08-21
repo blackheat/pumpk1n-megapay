@@ -37,30 +37,30 @@ namespace pumpk1n_backend.Controllers
         }
 
         /// <summary>
-        /// Confirm order
+        /// [Internal] Confirm order
         /// </summary>
-        /// <param name="orderId"></param>
+        /// <param name="id">Order ID</param>
         /// <returns></returns>
         [HttpPut]
-        [Authorize]
-        [Route("confirmation")]
-        public async Task<IActionResult> ConfirmOrder(long orderId)
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/confirmation")]
+        public async Task<IActionResult> ConfirmOrder(long id)
         {
-            var result = await _orderService.ConfirmOrder(orderId);
+            var result = await _orderService.ConfirmOrder(id);
             return ApiResponder.RespondSuccess(result);
         }
 
         /// <summary>
-        /// Cancel order
+        /// [Internal] Cancel order
         /// </summary>
-        /// <param name="orderId"></param>
+        /// <param name="id">Order ID</param>
         /// <returns></returns>
         [HttpPut]
-        [Authorize]
-        [Route("cancellation")]
-        public async Task<IActionResult> CancelOrder(long orderId)
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}/cancellation")]
+        public async Task<IActionResult> CancelOrder(long id)
         {
-            var result = await _orderService.CancelOrder(orderId);
+            var result = await _orderService.CancelOrder(id);
             return ApiResponder.RespondSuccess(result);
         }
 
@@ -83,9 +83,9 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// [Internal] Get specific user's orders
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="page"></param>
-        /// <param name="count"></param>
+        /// <param name="userId">User ID</param>
+        /// <param name="page">Page number</param>
+        /// <param name="count">Count</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
@@ -99,16 +99,45 @@ namespace pumpk1n_backend.Controllers
         /// <summary>
         /// [Internal] Get all user's orders
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="count"></param>
+        /// <param name="page">Page number</param>
+        /// <param name="count">Count</param>
         /// <returns></returns>
         [HttpGet]
         [Authorize(Roles = "InternalUser")]
-        [Route("user")]
+        [Route("all")]
         public async Task<IActionResult> GetAllUsersOrders(int page = 1, int count = 10)
         {
             var result = await _orderService.GetOrders(page, count);
             return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
+        }
+
+        /// <summary>
+        /// Get current user's specific order
+        /// </summary>
+        /// <param name="id">Order ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize]
+        [Route("current/{id}")]
+        public async Task<IActionResult> GetUserOrder(long id)
+        {
+            var userId = long.Parse(User.Claims.First().Subject.Name);
+            var result = await _orderService.GetUserOrder(userId, id);
+            return ApiResponder.RespondSuccess(result);
+        }
+
+        /// <summary>
+        /// [Internal] Get specific order
+        /// </summary>
+        /// <param name="id">Order ID</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "InternalUser")]
+        [Route("{id}")]
+        public async Task<IActionResult> GetOrder(long id)
+        {
+            var result = await _orderService.GetOrder(id);
+            return ApiResponder.RespondSuccess(result);
         }
     }
 }
