@@ -272,6 +272,9 @@ namespace pumpk1n_backend.Services.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
+            
+            if (order == null)
+                throw new OrderNotFoundException();
 
             var orderReturnModel = _mapper.Map<Order, OrderReturnModel>(order);
             return orderReturnModel;
@@ -284,6 +287,9 @@ namespace pumpk1n_backend.Services.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == userId);
+            
+            if (order == null)
+                throw new OrderNotFoundException();
 
             var orderReturnModel = _mapper.Map<Order, OrderReturnModel>(order);
             return orderReturnModel;
