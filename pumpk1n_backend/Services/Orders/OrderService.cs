@@ -208,9 +208,7 @@ namespace pumpk1n_backend.Services.Orders
                 .ThenByDescending(o => o.CheckedOutDate)
                 .ThenBy(o => o.ConfirmedDate)
                 .ThenByDescending(o => o.CancelledDate)
-                .Where(o =>
-                    o.CustomerId == userId && o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
-                    o.AddedDate > o.CancelledDate)
+                .Where(o => o.CustomerId == userId)
                 .ToListAsync();
             
             var totalCount = await _context.Orders
@@ -244,9 +242,6 @@ namespace pumpk1n_backend.Services.Orders
                 .ThenByDescending(o => o.CheckedOutDate)
                 .ThenBy(o => o.ConfirmedDate)
                 .ThenByDescending(o => o.CancelledDate)
-                .Where(o =>
-                    o.AddedDate < o.CheckedOutDate && o.AddedDate > o.ConfirmedDate &&
-                    o.AddedDate > o.CancelledDate)
                 .ToListAsync();
             
             var totalCount = await _context.Orders
