@@ -93,6 +93,8 @@ namespace pumpk1n_backend.Services.Accounts
 
                 var accountChainInfo = await _accountChainService.GetAccount(user.Id);
                 if (accountChainInfo == null)
+                    throw new DataNotFoundInChainException();
+                if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
                     throw new ChainCodeDataNotInSyncException();
 
                 var token = _accountHelper.JwtGenerator(user.Id, user.FullName, 0, user.UserType);
@@ -120,6 +122,8 @@ namespace pumpk1n_backend.Services.Accounts
             
             var accountChainInfo = await _accountChainService.GetAccount(user.Id);
             if (accountChainInfo == null)
+                throw new DataNotFoundInChainException();
+            if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
                 throw new ChainCodeDataNotInSyncException();
             
             var userInformationModel = _mapper.Map<User, UserInformationModel>(user);
@@ -138,6 +142,8 @@ namespace pumpk1n_backend.Services.Accounts
             {
                 var accountChainInfo = await _accountChainService.GetAccount(user.Id);
                 if (accountChainInfo == null)
+                    throw new DataNotFoundInChainException();
+                if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
                     throw new ChainCodeDataNotInSyncException();
             }
 
