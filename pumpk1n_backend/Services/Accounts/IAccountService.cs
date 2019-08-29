@@ -8,6 +8,7 @@ namespace pumpk1n_backend.Services.Accounts
 {
     public interface IAccountService
     {
+        Task Resync();
         Task RegisterAccount(UserRegisterModel model, UserType userType);
         Task<UserBearerTokenModel> UserLogin(UserLoginModel model);
         Task<UserInformationModel> GetUserDetails(long userId);

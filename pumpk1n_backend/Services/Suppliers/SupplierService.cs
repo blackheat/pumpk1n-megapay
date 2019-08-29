@@ -29,6 +29,21 @@ namespace pumpk1n_backend.Services.Suppliers
             _mapper = mapper;
             _supplierChainService = supplierChainService;
         }
+
+        public async Task Resync()
+        {
+            var suppliers = await _context.Suppliers.ToListAsync();
+            foreach (var supplier in suppliers)
+            {
+                var chainModel = new ChainSupplierTransferModel
+                {
+                    Id = supplier.Id.ToString(),
+                    CreatedDate = supplier.AddedDate.ToBinary().ToString(),
+                    Hash = supplier.ComputeHash().ToString()
+                };
+                await _supplierChainService.AddSupplier(chainModel);
+            }
+        }
         
         public async Task<SupplierReturnModel> AddSupplier(SupplierInsertModel model)
         {

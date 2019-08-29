@@ -34,8 +34,27 @@ namespace pumpk1n_backend.Services.Accounts
             _accountChainService = accountChainService;
         }
 
-        #region Authentication
+        #region ChainResync
 
+        public async Task Resync()
+        {
+            var users = await _context.Users.ToListAsync();
+            foreach (var user in users)
+            {
+                var chainModel = new ChainAccountTransferModel
+                {
+                    Id = user.Id.ToString(),
+                    CreatedDate = user.RegisteredDate.ToBinary().ToString(),
+                    Hash = user.ComputeHash().ToString()
+                };
+                await _accountChainService.AddAccount(chainModel);
+            }
+        }
+
+        #endregion
+        
+        #region Authentication
+        
         public async Task RegisterAccount(UserRegisterModel model, UserType userType)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())

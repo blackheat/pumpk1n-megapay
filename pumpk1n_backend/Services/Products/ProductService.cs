@@ -32,6 +32,21 @@ namespace pumpk1n_backend.Services.Products
             _productChainService = productChainService;
         }
 
+        public async Task Resync()
+        {
+            var products = await _context.Products.ToListAsync();
+            foreach (var product in products)
+            {
+                var chainModel = new ChainProductTransferModel
+                {
+                    Id = product.Id.ToString(),
+                    CreatedDate = product.AddedDate.ToBinary().ToString(),
+                    Hash = product.ComputeHash().ToString()
+                };
+                await _productChainService.AddProduct(chainModel);
+            }
+        }
+        
         public async Task<ProductReturnModel> AddProduct(ProductInsertModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
