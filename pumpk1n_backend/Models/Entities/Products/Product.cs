@@ -22,5 +22,12 @@ namespace pumpk1n_backend.Models.Entities.Products
         public bool Deprecated { get; set; }
 
         public virtual ICollection<ProductInventory> ProductInventories { get; set; }
+        
+        public long ComputeHash()
+        {
+            var reprString =
+                $"{Id}_{Name}_{LongDescription}_{ShortDescription}_{Image}_{Price}_{OutOfStock}_{AddedDate}_{Deprecated}";
+            return reprString.GetHashCode();
+        }
     }
 }
