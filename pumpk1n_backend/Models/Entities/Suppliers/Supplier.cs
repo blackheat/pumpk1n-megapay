@@ -18,5 +18,12 @@ namespace pumpk1n_backend.Models.Entities.Suppliers
         
         // Deprecated
         public bool Deprecated { get; set; }
+        
+        public long ComputeHash()
+        {
+            var reprString =
+                $"{Id}_{Name}_{Description}_{Address}_{Telephone}_{Website}_{AddedDate}";
+            return reprString.GetHashCode();
+        }
     }
 }

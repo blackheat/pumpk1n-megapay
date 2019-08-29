@@ -117,6 +117,7 @@ namespace pumpk1n_backend
             // Configuring D-I for Chain Services
             services.AddScoped<IAccountChainService, AccountChainService>();
             services.AddScoped<IProductChainService, ProductChainService>();
+            services.AddScoped<ISupplierChainService, SupplierChainService>();
 
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
