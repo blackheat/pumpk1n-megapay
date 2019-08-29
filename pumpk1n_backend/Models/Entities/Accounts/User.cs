@@ -26,8 +26,11 @@ namespace pumpk1n_backend.Models.Entities.Accounts
         public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<UserTokenTransaction> UserTokenTransactions { get; set; }
 
-        public class Claims
+        public long ComputeHash()
         {
+            var reprString =
+                $"{Id}_{Email}_{FullName}_{Nonce}_{HashedPassword}_{RegisteredDate}_{UpdatedDate}_{UserType}";
+            return reprString.GetHashCode();
         }
     }
 }

@@ -113,6 +113,9 @@ namespace pumpk1n_backend
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IOrderService, OrderService>();
+            
+            // Configuring D-I for Chain Services
+            services.AddScoped<IAccountChainService, AccountChainService>();
 
             // Configuring D-I for Helpers
             services.AddScoped<IAccountHelper, AccountHelper>();
@@ -123,6 +126,8 @@ namespace pumpk1n_backend
             services.Configure<JwtSettings>(jwtSettingsSection);
             var coinGateSettingsSection = _configuration.GetSection("CoinGateSettings");
             services.Configure<CoinGateSettings>(coinGateSettingsSection);
+            var hyperledgerFabricApiSettingsSection = _configuration.GetSection("HyperledgerFabricApiSettings");
+            services.Configure<HyperledgerFabricApiSettings>(hyperledgerFabricApiSettingsSection);
             
             // Configure JWT Settings
             var jwtSettings = jwtSettingsSection.Get<JwtSettings>();

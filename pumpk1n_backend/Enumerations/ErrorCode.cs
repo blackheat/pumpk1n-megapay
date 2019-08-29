@@ -45,5 +45,9 @@
         OrderNotFoundException = 7003,
         CartItemNotFoundException = 7004,
         OrderAlreadyCancelledOrCheckedoutException = 7005,
+        
+        // Chaincode
+        ChainCodeDataNotInSyncException = 8001,
+        DataNotFoundInChainException = 8002
     }
 }
