@@ -123,9 +123,7 @@ namespace pumpk1n_backend
             services.Configure<JwtSettings>(jwtSettingsSection);
             var coinGateSettingsSection = _configuration.GetSection("CoinGateSettings");
             services.Configure<CoinGateSettings>(coinGateSettingsSection);
-            var hyperledgerFabricApiSettingsSection = _configuration.GetSection("HyperledgerFabricApiSettings");
-            services.Configure<HyperledgerFabricApiSettings>(hyperledgerFabricApiSettingsSection);
-            
+
             // Configure JWT Settings
             var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
             var key = Encoding.ASCII.GetBytes(jwtSettings.Secret);
