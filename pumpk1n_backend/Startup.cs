@@ -192,6 +192,22 @@ namespace pumpk1n_backend
             app.UseAuthentication();
 
             app.UseMvc();
+            
+            // Apply database migration
+            ApplyMigration(app);
+        }
+        
+        private static void ApplyMigration(IApplicationBuilder app) 
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<DatabaseContext>())
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }
