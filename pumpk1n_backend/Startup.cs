@@ -145,16 +145,7 @@ namespace pumpk1n_backend
                     };
                 });
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAllHeaders", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
-            
+            services.AddCors(c => c.AddDefaultPolicy(p => { p.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); }));
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
@@ -164,7 +155,7 @@ namespace pumpk1n_backend
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseForwardedHeaders();
-            app.UseCors("AllowAllHeaders");
+            app.UseCors();
             
             if (env.IsDevelopment())
             {
