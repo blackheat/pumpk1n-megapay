@@ -93,17 +93,5 @@ namespace pumpk1n_backend.Controllers
             var result = await _supplierService.GetSuppliers(page, count, name);
             return ApiResponder.RespondSuccess(result, null, result.GetPaginationData());
         }
-        
-        /// <summary>
-        /// Resync chain information
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("chain/resync")]
-        public async Task<IActionResult> ChainResync()
-        {
-            await _supplierService.Resync();
-            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
-        }
     }
 }

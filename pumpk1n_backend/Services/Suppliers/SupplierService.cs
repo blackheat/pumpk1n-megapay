@@ -4,12 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using pumpk1n_backend.Exceptions.Chain;
 using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Suppliers;
 using pumpk1n_backend.Models;
-using pumpk1n_backend.Models.ChainReturnModels.Suppliers;
-using pumpk1n_backend.Models.ChainTransferModels.Suppliers;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Suppliers;
 using pumpk1n_backend.Models.ReturnModels.Suppliers;
@@ -21,30 +18,13 @@ namespace pumpk1n_backend.Services.Suppliers
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
-        private readonly ISupplierChainService _supplierChainService;
 
-        public SupplierService(DatabaseContext context, IMapper mapper, ISupplierChainService supplierChainService)
+        public SupplierService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _supplierChainService = supplierChainService;
         }
 
-        public async Task Resync()
-        {
-            var suppliers = await _context.Suppliers.ToListAsync();
-            foreach (var supplier in suppliers)
-            {
-                var chainModel = new ChainSupplierTransferModel
-                {
-                    Id = supplier.Id.ToString(),
-                    CreatedDate = supplier.AddedDate.ToBinary().ToString(),
-                    Hash = supplier.ComputeHash().ToString()
-                };
-                await _supplierChainService.AddSupplier(chainModel);
-            }
-        }
-        
         public async Task<SupplierReturnModel> AddSupplier(SupplierInsertModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -56,15 +36,7 @@ namespace pumpk1n_backend.Services.Suppliers
                     _context.Suppliers.Add(supplier);
                     
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainSupplierTransferModel
-                    {
-                        Id = supplier.Id.ToString(),
-                        CreatedDate = supplier.AddedDate.ToBinary().ToString(),
-                        Hash = supplier.ComputeHash().ToString()
-                    };
-                    await _supplierChainService.AddSupplier(chainModel);
-                    
+
                     transaction.Commit();
 
                     return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
@@ -87,26 +59,12 @@ namespace pumpk1n_backend.Services.Suppliers
                     
                     if (supplier == null)
                         throw new SupplierNotFoundException();
-                    
-                    var supplierChainInfo = await _supplierChainService.GetSupplier(supplier.Id);
-                    if (supplierChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(supplierChainInfo.Hash) != supplier.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
 
                     _mapper.Map(model, supplier);
 
                     _context.Suppliers.Update(supplier);
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainSupplierTransferModel
-                    {
-                        Id = supplier.Id.ToString(),
-                        CreatedDate = supplier.AddedDate.ToBinary().ToString(),
-                        Hash = supplier.ComputeHash().ToString()
-                    };
-                    await _supplierChainService.AddSupplier(chainModel);
-                    
+
                     transaction.Commit();
 
                     return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
@@ -129,17 +87,9 @@ namespace pumpk1n_backend.Services.Suppliers
                     
                     if (supplier == null)
                         throw new SupplierNotFoundException();
-                    
-                    var supplierChainInfo = await _supplierChainService.GetSupplier(supplier.Id);
-                    if (supplierChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(supplierChainInfo.Hash) != supplier.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
 
                     _context.Suppliers.Remove(supplier);
                     await _context.SaveChangesAsync();
-                    
-                    await _supplierChainService.DeleteSupplier(supplierId);
                     
                     transaction.Commit();
                 }
@@ -157,13 +107,7 @@ namespace pumpk1n_backend.Services.Suppliers
             
             if (supplier == null)
                 throw new SupplierNotFoundException();
-            
-            var supplierChainInfo = await _supplierChainService.GetSupplier(supplier.Id);
-            if (supplierChainInfo == null)
-                throw new DataNotFoundInChainException();
-            if (long.Parse(supplierChainInfo.Hash) != supplier.ComputeHash())
-                throw new ChainCodeDataNotInSyncException();
-            
+
             return _mapper.Map<Supplier, SupplierReturnModel>(supplier);
         }
 
@@ -179,15 +123,6 @@ namespace pumpk1n_backend.Services.Suppliers
                 .Skip(startAt)
                 .Take(count).ToListAsync();
 
-            foreach (var supplier in suppliers)
-            {
-                var supplierChainInfo = await _supplierChainService.GetSupplier(supplier.Id);
-                if (supplierChainInfo == null)
-                    throw new DataNotFoundInChainException();
-                if (long.Parse(supplierChainInfo.Hash) != supplier.ComputeHash())
-                    throw new ChainCodeDataNotInSyncException();
-            }
-            
             var totalCount = await _context.Suppliers
                 .Where(s => s.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase)).CountAsync();
             var totalPages = totalCount / count + (totalCount % count > 0 ? 1 : 0);

@@ -123,17 +123,5 @@ namespace pumpk1n_backend.Controllers
             await _productService.ChangeProductStockStatus(id, status);
             return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
         }
-        
-        /// <summary>
-        /// Resync chain information
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("chain/resync")]
-        public async Task<IActionResult> ChainResync()
-        {
-            await _productService.Resync();
-            return ApiResponder.RespondStatusCode(HttpStatusCode.OK);
-        }
     }
 }

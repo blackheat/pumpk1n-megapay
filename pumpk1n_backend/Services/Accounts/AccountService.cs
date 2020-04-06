@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using pumpk1n_backend.Enumerations;
-using pumpk1n_backend.Exceptions;
 using pumpk1n_backend.Exceptions.Accounts;
-using pumpk1n_backend.Exceptions.Chain;
 using pumpk1n_backend.Helpers.Accounts;
 using pumpk1n_backend.Models;
-using pumpk1n_backend.Models.ChainTransferModels.Accounts;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Accounts;
 using pumpk1n_backend.Models.ReturnModels.Accounts;
@@ -23,36 +20,15 @@ namespace pumpk1n_backend.Services.Accounts
     {
         private readonly DatabaseContext _context;
         private readonly IAccountHelper _accountHelper;
-        private readonly IAccountChainService _accountChainService;
         private readonly IMapper _mapper;
 
-        public AccountService(DatabaseContext context, IMapper mapper, IAccountHelper accountHelper, IAccountChainService accountChainService)
+        public AccountService(DatabaseContext context, IMapper mapper, IAccountHelper accountHelper)
         {
             _context = context;
             _mapper = mapper;
             _accountHelper = accountHelper;
-            _accountChainService = accountChainService;
         }
 
-        #region ChainResync
-
-        public async Task Resync()
-        {
-            var users = await _context.Users.ToListAsync();
-            foreach (var user in users)
-            {
-                var chainModel = new ChainAccountTransferModel
-                {
-                    Id = user.Id.ToString(),
-                    CreatedDate = user.RegisteredDate.ToBinary().ToString(),
-                    Hash = user.ComputeHash().ToString()
-                };
-                await _accountChainService.AddAccount(chainModel);
-            }
-        }
-
-        #endregion
-        
         #region Authentication
         
         public async Task RegisterAccount(UserRegisterModel model, UserType userType)
@@ -79,13 +55,6 @@ namespace pumpk1n_backend.Services.Accounts
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
                     
-                    var chainModel = new ChainAccountTransferModel
-                    {
-                        Id = user.Id.ToString(),
-                        CreatedDate = user.RegisteredDate.ToBinary().ToString(),
-                        Hash = user.ComputeHash().ToString()
-                    };
-                    await _accountChainService.AddAccount(chainModel);
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -110,12 +79,6 @@ namespace pumpk1n_backend.Services.Accounts
                 if (!hashedPassword.Equals(user.HashedPassword))
                     throw new InvalidCredentialsException();
 
-                var accountChainInfo = await _accountChainService.GetAccount(user.Id);
-                if (accountChainInfo == null)
-                    throw new DataNotFoundInChainException();
-                if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
-                    throw new ChainCodeDataNotInSyncException();
-
                 var token = _accountHelper.JwtGenerator(user.Id, user.FullName, 0, user.UserType);
                 var userTokenModel = new UserBearerTokenModel
                 {
@@ -138,13 +101,6 @@ namespace pumpk1n_backend.Services.Accounts
         public async Task<UserInformationModel> GetUserDetails(long userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            
-            var accountChainInfo = await _accountChainService.GetAccount(user.Id);
-            if (accountChainInfo == null)
-                throw new DataNotFoundInChainException();
-            if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
-                throw new ChainCodeDataNotInSyncException();
-            
             var userInformationModel = _mapper.Map<User, UserInformationModel>(user);
             return userInformationModel;
         }
@@ -156,15 +112,6 @@ namespace pumpk1n_backend.Services.Accounts
                 .Where(u => u.FullName.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&
                             u.Email.Contains(filterModel.Email, StringComparison.InvariantCultureIgnoreCase))
                 .OrderByDescending(u => u.RegisteredDate).Skip(startAt).Take(count).ToListAsync();
-
-            foreach (var user in users)
-            {
-                var accountChainInfo = await _accountChainService.GetAccount(user.Id);
-                if (accountChainInfo == null)
-                    throw new DataNotFoundInChainException();
-                if (long.Parse(accountChainInfo.Hash) != user.ComputeHash())
-                    throw new ChainCodeDataNotInSyncException();
-            }
 
             var totalCount = await _context.Users
                 .Where(u => u.FullName.Contains(filterModel.Name, StringComparison.InvariantCultureIgnoreCase) &&

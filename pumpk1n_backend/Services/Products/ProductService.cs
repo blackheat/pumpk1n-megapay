@@ -4,11 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using pumpk1n_backend.Exceptions.Chain;
 using pumpk1n_backend.Exceptions.Others;
 using pumpk1n_backend.Exceptions.Products;
 using pumpk1n_backend.Models;
-using pumpk1n_backend.Models.ChainTransferModels.Products;
 using pumpk1n_backend.Models.DatabaseContexts;
 using pumpk1n_backend.Models.Entities.Products;
 using pumpk1n_backend.Models.ReturnModels.Products;
@@ -20,33 +18,16 @@ namespace pumpk1n_backend.Services.Products
     {
         private readonly DatabaseContext _context;
         private readonly IMapper _mapper;
-        private readonly IProductChainService _productChainService;
 
         private const string DefaultImageUrl =
             "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c05962484.png";
 
-        public ProductService(DatabaseContext context, IMapper mapper, IProductChainService productChainService)
+        public ProductService(DatabaseContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _productChainService = productChainService;
         }
 
-        public async Task Resync()
-        {
-            var products = await _context.Products.ToListAsync();
-            foreach (var product in products)
-            {
-                var chainModel = new ChainProductTransferModel
-                {
-                    Id = product.Id.ToString(),
-                    CreatedDate = product.AddedDate.ToBinary().ToString(),
-                    Hash = product.ComputeHash().ToString()
-                };
-                await _productChainService.AddProduct(chainModel);
-            }
-        }
-        
         public async Task<ProductReturnModel> AddProduct(ProductInsertModel model)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -58,15 +39,7 @@ namespace pumpk1n_backend.Services.Products
                     _context.Products.Add(product);
 
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainProductTransferModel
-                    {
-                        Id = product.Id.ToString(),
-                        CreatedDate = product.AddedDate.ToBinary().ToString(),
-                        Hash = product.ComputeHash().ToString()
-                    };
-                    await _productChainService.AddProduct(chainModel);
-                    
+
                     transaction.Commit();
 
                     return _mapper.Map<Product, ProductReturnModel>(product);
@@ -89,26 +62,12 @@ namespace pumpk1n_backend.Services.Products
 
                     if (product == null)
                         throw new ProductNotFoundException();
-                    
-                    var productChainInfo = await _productChainService.GetProduct(product.Id);
-                    if (productChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
-                    
+
                     _mapper.Map(model, product);
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainProductTransferModel
-                    {
-                        Id = product.Id.ToString(),
-                        CreatedDate = product.AddedDate.ToBinary().ToString(),
-                        Hash = product.ComputeHash().ToString()
-                    };
-                    await _productChainService.AddProduct(chainModel);
-                    
+
                     transaction.Commit();
 
                     return _mapper.Map<Product, ProductReturnModel>(product);
@@ -131,17 +90,10 @@ namespace pumpk1n_backend.Services.Products
 
                     if (product == null)
                         throw new ProductNotFoundException();
-                    
-                    var productChainInfo = await _productChainService.GetProduct(product.Id);
-                    if (productChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
 
                     _context.Products.Remove(product);
                     await _context.SaveChangesAsync();
                     
-                    await _productChainService.DeleteProduct(productId);
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -158,12 +110,6 @@ namespace pumpk1n_backend.Services.Products
 
             if (product == null)
                 throw new ProductNotFoundException();
-            
-            var productChainInfo = await _productChainService.GetProduct(product.Id);
-            if (productChainInfo == null)
-                throw new DataNotFoundInChainException();
-            if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                throw new ChainCodeDataNotInSyncException();
 
             if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
                 product.Image = DefaultImageUrl;
@@ -187,12 +133,6 @@ namespace pumpk1n_backend.Services.Products
 
             foreach (var product in products)
             {
-                var productChainInfo = await _productChainService.GetProduct(product.Id);
-                if (productChainInfo == null)
-                    throw new DataNotFoundInChainException();
-                if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                    throw new ChainCodeDataNotInSyncException();
-                
                 if (string.IsNullOrEmpty(product.Image) || string.IsNullOrWhiteSpace(product.Image))
                     product.Image = DefaultImageUrl;
             }
@@ -221,26 +161,12 @@ namespace pumpk1n_backend.Services.Products
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
                     if (product == null)
                         throw new ProductNotFoundException();
-                    
-                    var productChainInfo = await _productChainService.GetProduct(product.Id);
-                    if (productChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
 
                     product.Deprecated = status;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainProductTransferModel
-                    {
-                        Id = product.Id.ToString(),
-                        CreatedDate = product.AddedDate.ToBinary().ToString(),
-                        Hash = product.ComputeHash().ToString()
-                    };
-                    await _productChainService.AddProduct(chainModel);
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -260,26 +186,12 @@ namespace pumpk1n_backend.Services.Products
                     var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
                     if (product == null)
                         throw new ProductNotFoundException();
-                    
-                    var productChainInfo = await _productChainService.GetProduct(product.Id);
-                    if (productChainInfo == null)
-                        throw new DataNotFoundInChainException();
-                    if (long.Parse(productChainInfo.Hash) != product.ComputeHash())
-                        throw new ChainCodeDataNotInSyncException();
 
                     product.OutOfStock = !status;
 
                     _context.Products.Update(product);
                     await _context.SaveChangesAsync();
-                    
-                    var chainModel = new ChainProductTransferModel
-                    {
-                        Id = product.Id.ToString(),
-                        CreatedDate = product.AddedDate.ToBinary().ToString(),
-                        Hash = product.ComputeHash().ToString()
-                    };
-                    await _productChainService.AddProduct(chainModel);
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception)

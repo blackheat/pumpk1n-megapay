@@ -7,7 +7,6 @@ namespace pumpk1n_backend.Services.Suppliers
 {
     public interface ISupplierService
     {
-        Task Resync();
         Task<SupplierReturnModel> AddSupplier(SupplierInsertModel model);
         Task<SupplierReturnModel> UpdateSupplier(SupplierInsertModel model, long supplierId);
         Task DeleteSupplier(long supplierId);

@@ -7,7 +7,6 @@ namespace pumpk1n_backend.Services.Products
 {
     public interface IProductService
     {
-        Task Resync();
         Task<ProductReturnModel> AddProduct(ProductInsertModel model);
         Task<ProductReturnModel> UpdateProduct(ProductInsertModel model, long productId);
         Task DeleteProduct(long productId);
